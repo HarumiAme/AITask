@@ -125,7 +125,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
             <span className={`break-words ${isMainTask ? 'text-slate-700' : 'text-slate-600'}`}>
               {task.content}
             </span>
-            <div className="flex flex-wrap items-center gap-1 sm:gap-0 sm:space-x-1">
+            <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-0 sm:space-x-1">
               {!isFirst && (
                 <button 
                   onClick={() => onReorderTasks(task.id, 'up', parentId)}

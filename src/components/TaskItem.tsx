@@ -111,63 +111,69 @@ const TaskItem: React.FC<TaskItemProps> = ({
               onClick={handleEdit}
               className="p-2 text-green-500 hover:text-green-600 transition-colors"
             >
-              <Check size={18} />
+              <Check size={20} />
             </button>
             <button 
               onClick={() => setIsEditing(false)}
               className="p-2 text-red-500 hover:text-red-600 transition-colors"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between group">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <span className={`break-words ${isMainTask ? 'text-slate-700' : 'text-slate-600'}`}>
               {task.content}
             </span>
-            <div className="flex space-x-1 ml-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex flex-wrap items-center gap-1 sm:gap-0 sm:space-x-1">
               {!isFirst && (
                 <button 
                   onClick={() => onReorderTasks(task.id, 'up', parentId)}
-                  className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                  aria-label="Move up"
                 >
-                  <ArrowUp size={16} />
+                  <ArrowUp size={18} />
                 </button>
               )}
               {!isLast && (
                 <button 
                   onClick={() => onReorderTasks(task.id, 'down', parentId)}
-                  className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                  aria-label="Move down"
                 >
-                  <ArrowDown size={16} />
+                  <ArrowDown size={18} />
                 </button>
               )}
               <button 
                 onClick={() => setIsEditing(true)}
-                className="p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                aria-label="Edit task"
               >
-                <Edit2 size={16} />
+                <Edit2 size={18} />
               </button>
               <button 
                 onClick={handleDelete}
-                className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                aria-label="Delete task"
               >
-                <Trash2 size={16} />
+                <Trash2 size={18} />
               </button>
               <button
                 onClick={handleAddSubtask}
-                className="p-1 text-green-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                className="p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                aria-label="Add subtask"
               >
-                <Plus size={16} />
+                <Plus size={18} />
               </button>
               <button
                 onClick={handleGenerateSubtask}
                 disabled={isGeneratingSubtask}
-                className={`p-1 text-purple-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors ${
+                className={`p-2 text-purple-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors ${
                   isGeneratingSubtask ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
+                aria-label="Generate subtask with AI"
               >
-                <Sparkles size={16} />
+                <Sparkles size={18} />
               </button>
             </div>
           </div>
@@ -188,15 +194,17 @@ const TaskItem: React.FC<TaskItemProps> = ({
               <button 
                 type="submit"
                 className="p-2 text-green-500 hover:text-green-600 transition-colors"
+                aria-label="Save subtask"
               >
-                <Check size={18} />
+                <Check size={20} />
               </button>
               <button
                 type="button"
                 onClick={() => setIsAddingSubtask(false)}
                 className="p-2 text-red-500 hover:text-red-600 transition-colors"
+                aria-label="Cancel"
               >
-                <X size={18} />
+                <X size={20} />
               </button>
             </div>
           </form>

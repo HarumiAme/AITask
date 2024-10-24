@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Task } from '../types';
-import { Edit2, Trash2, Plus, Sparkles, ArrowUp, ArrowDown } from 'lucide-react';
+import { Edit2, Trash2, Plus, Sparkles, ArrowUp, ArrowDown, Check, X } from 'lucide-react';
 
 interface TaskItemProps {
   task: Task;
@@ -90,85 +90,121 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   return (
-    <li className="bg-white p-4 rounded-md shadow-sm">
-      {isEditing ? (
-        <div className="flex items-start space-x-2">
-          <textarea
-            ref={editTextareaRef}
-            value={editedContent}
-            onChange={(e) => setEditedContent(e.target.value)}
-            className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
-            rows={1}
-            style={{ minHeight: '40px' }}
-            autoFocus
-          />
-          <button onClick={handleEdit} className="mt-1 text-green-500 hover:text-green-600">
-            Save
-          </button>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between">
-          <span className="break-words">{task.content}</span>
-          <div className="flex space-x-2 ml-2 flex-shrink-0">
-            {!isFirst && (
-              <button onClick={() => onReorderTasks(task.id, 'up', parentId)} className="text-gray-500 hover:text-gray-600">
-                <ArrowUp size={18} />
-              </button>
-            )}
-            {!isLast && (
-              <button onClick={() => onReorderTasks(task.id, 'down', parentId)} className="text-gray-500 hover:text-gray-600">
-                <ArrowDown size={18} />
-              </button>
-            )}
-            <button onClick={() => setIsEditing(true)} className="text-blue-500 hover:text-blue-600">
-              <Edit2 size={18} />
-            </button>
-            <button onClick={handleDelete} className="text-red-500 hover:text-red-600">
-              <Trash2 size={18} />
-            </button>
-            <button
-              onClick={handleAddSubtask}
-              className="text-green-500 hover:text-green-600"
-            >
-              <Plus size={18} />
-            </button>
-            <button
-              onClick={handleGenerateSubtask}
-              disabled={isGeneratingSubtask}
-              className={`text-purple-500 hover:text-purple-600 ${isGeneratingSubtask ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <Sparkles size={18} />
-            </button>
-          </div>
-        </div>
-      )}
-      {isAddingSubtask && (
-        <form onSubmit={handleSubmitSubtask} className="mt-2">
+    <li className={`
+      ${isMainTask ? 'bg-white' : 'bg-slate-50'} 
+      rounded-lg shadow-sm border border-slate-200 transition-all 
+      ${isMainTask ? 'hover:shadow-md' : ''}
+    `}>
+      <div className="p-4">
+        {isEditing ? (
           <div className="flex items-start space-x-2">
             <textarea
-              ref={newSubtaskTextareaRef}
-              value={newSubtaskContent}
-              onChange={(e) => setNewSubtaskContent(e.target.value)}
-              placeholder="Enter subtask..."
-              className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
+              ref={editTextareaRef}
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden bg-white"
               rows={1}
               style={{ minHeight: '40px' }}
+              autoFocus
             />
-            <button type="submit" className="mt-1 text-green-500 hover:text-green-600">
-              Add
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsAddingSubtask(false)}
-              className="mt-1 text-red-500 hover:text-red-600"
+            <button 
+              onClick={handleEdit}
+              className="p-2 text-green-500 hover:text-green-600 transition-colors"
             >
-              Cancel
+              <Check size={18} />
+            </button>
+            <button 
+              onClick={() => setIsEditing(false)}
+              className="p-2 text-red-500 hover:text-red-600 transition-colors"
+            >
+              <X size={18} />
             </button>
           </div>
-        </form>
-      )}
+        ) : (
+          <div className="flex items-center justify-between group">
+            <span className={`break-words ${isMainTask ? 'text-slate-700' : 'text-slate-600'}`}>
+              {task.content}
+            </span>
+            <div className="flex space-x-1 ml-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              {!isFirst && (
+                <button 
+                  onClick={() => onReorderTasks(task.id, 'up', parentId)}
+                  className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                >
+                  <ArrowUp size={16} />
+                </button>
+              )}
+              {!isLast && (
+                <button 
+                  onClick={() => onReorderTasks(task.id, 'down', parentId)}
+                  className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                >
+                  <ArrowDown size={16} />
+                </button>
+              )}
+              <button 
+                onClick={() => setIsEditing(true)}
+                className="p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+              >
+                <Edit2 size={16} />
+              </button>
+              <button 
+                onClick={handleDelete}
+                className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+              >
+                <Trash2 size={16} />
+              </button>
+              <button
+                onClick={handleAddSubtask}
+                className="p-1 text-green-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+              >
+                <Plus size={16} />
+              </button>
+              <button
+                onClick={handleGenerateSubtask}
+                disabled={isGeneratingSubtask}
+                className={`p-1 text-purple-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors ${
+                  isGeneratingSubtask ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                <Sparkles size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {isAddingSubtask && (
+          <form onSubmit={handleSubmitSubtask} className="mt-3">
+            <div className="flex items-start space-x-2">
+              <textarea
+                ref={newSubtaskTextareaRef}
+                value={newSubtaskContent}
+                onChange={(e) => setNewSubtaskContent(e.target.value)}
+                placeholder="Enter subtask..."
+                className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden bg-white"
+                rows={1}
+                style={{ minHeight: '40px' }}
+              />
+              <button 
+                type="submit"
+                className="p-2 text-green-500 hover:text-green-600 transition-colors"
+              >
+                <Check size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAddingSubtask(false)}
+                className="p-2 text-red-500 hover:text-red-600 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+      
       {isMainTask && task.subtasks.length > 0 && (
-        <ul className="mt-2 space-y-2 pl-4">
+        <ul className="pl-6 pr-2 pb-2 space-y-2">
           {task.subtasks.map((subtask, subtaskIndex) => (
             <TaskItem
               key={subtask.id}

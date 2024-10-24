@@ -20,7 +20,7 @@ const TaskList: React.FC<TaskListProps> = ({
   onGenerateSubtask,
 }) => {
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-4">
       {tasks.map((task, index) => (
         <TaskItem
           key={task.id}

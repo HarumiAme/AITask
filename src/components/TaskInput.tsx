@@ -44,19 +44,21 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onGenerateTask }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-start space-x-2 mb-4">
-      <textarea
-        ref={textareaRef}
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Add a new task..."
-        className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
-        rows={1}
-        style={{ minHeight: '40px' }}
-      />
+    <form onSubmit={handleSubmit} className="flex items-start space-x-3">
+      <div className="flex-grow relative">
+        <textarea
+          ref={textareaRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Add a new task..."
+          className="w-full px-4 py-3 bg-white/90 backdrop-blur-sm rounded-xl border-2 border-white/20 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 resize-none overflow-hidden placeholder-slate-400"
+          rows={1}
+          style={{ minHeight: '48px' }}
+        />
+      </div>
       <button
         type="submit"
-        className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 shadow-lg transition-colors duration-200"
       >
         <PlusCircle size={24} />
       </button>
@@ -64,9 +66,11 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onGenerateTask }) => {
         type="button"
         onClick={handleGenerateTask}
         disabled={isGenerating}
-        className={`p-2 ${
-          isGenerating ? 'bg-gray-400' : 'bg-purple-500 hover:bg-purple-600'
-        } text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500`}
+        className={`px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-50 shadow-lg transition-colors duration-200 ${
+          isGenerating
+            ? 'bg-slate-400 cursor-not-allowed'
+            : 'bg-purple-500 hover:bg-purple-600 text-white'
+        }`}
       >
         <Sparkles size={24} />
       </button>

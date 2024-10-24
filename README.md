@@ -1,5 +1,6 @@
 # Gestor de lista de tareas con asistente de IA
-![image](https://github.com/user-attachments/assets/88388541-7f90-4304-a7a6-2fdd2ecc99e5)
+![image](https://github.com/user-attachments/assets/44203cc9-1766-45c6-88fb-f3cef8c0fae9)
+
 
 ## Instrucciones 
 ### Clonar proyecto

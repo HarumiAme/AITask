@@ -97,7 +97,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
       'from-pink-500/10 to-orange-500/10',
       'from-yellow-500/10 to-green-500/10'
     ];
-    return gradients[index % gradients.length];
+    // Use task.id instead of index to maintain color consistency during reordering
+    return gradients[task.id % gradients.length];
   };
 
   return (

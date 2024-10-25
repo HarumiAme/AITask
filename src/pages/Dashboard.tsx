@@ -116,8 +116,10 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-      <nav className="bg-slate-800/50 border-b border-slate-700">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-700 via-slate-900 to-purple-900 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-20"></div>
+      
+      <nav className="bg-white/5 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -125,10 +127,12 @@ const Dashboard: React.FC = () => {
               <span className="ml-2 text-xl font-bold text-white">TaskAI</span>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="hidden custom:inline text-slate-300">Welcome, {user?.name}</span>
+              <span className="hidden custom:inline text-slate-300/90">
+                Welcome, {user?.name}
+              </span>
               <button
                 onClick={logout}
-                className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:text-white transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 text-slate-300/90 hover:text-white transition-colors"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Logout</span>
@@ -138,19 +142,18 @@ const Dashboard: React.FC = () => {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto px-4 py-12 relative">
         <div className="mb-12">
-          <TaskInput
-            onAddTask={addTask}
-            onGenerateTask={generateTaskWithAI}
-          />
+          <TaskInput onAddTask={addTask} onGenerateTask={generateTaskWithAI} />
         </div>
-        
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10">
           <div className="p-6">
             {tasks.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-500">No tasks yet. Add your first task above!</p>
+                <p className="text-slate-400">
+                  No tasks yet. Add your first task above!
+                </p>
               </div>
             ) : (
               <TaskList

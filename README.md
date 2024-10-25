@@ -1,5 +1,6 @@
 # Gestor de lista de tareas con asistente de IA
-![image](https://github.com/user-attachments/assets/44203cc9-1766-45c6-88fb-f3cef8c0fae9)
+![image](https://github.com/user-attachments/assets/1dae45cf-133e-4ae2-859f-be8473379ad4)
+
 
 
 ## Instrucciones 

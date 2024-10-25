@@ -125,7 +125,7 @@ const Dashboard: React.FC = () => {
               <span className="ml-2 text-xl font-bold text-white">TaskAI</span>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-slate-300">Welcome, {user?.name}</span>
+              <span className="hidden custom:inline text-slate-300">Welcome, {user?.name}</span>
               <button
                 onClick={logout}
                 className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:text-white transition-colors"

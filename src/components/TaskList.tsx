@@ -9,6 +9,7 @@ interface TaskListProps {
   onAddSubtask: (parentId: number, content: string) => void;
   onReorderTasks: (taskId: number, direction: 'up' | 'down') => void;
   onGenerateSubtask: (parentId: number, context: string) => Promise<void>;
+  onToggleCompletion: (id: number, parentId?: number) => void;
 }
 
 const TaskList: React.FC<TaskListProps> = ({
@@ -18,6 +19,7 @@ const TaskList: React.FC<TaskListProps> = ({
   onAddSubtask,
   onReorderTasks,
   onGenerateSubtask,
+  onToggleCompletion,
 }) => {
   return (
     <ul className="space-y-4">
@@ -33,6 +35,7 @@ const TaskList: React.FC<TaskListProps> = ({
           onAddSubtask={onAddSubtask}
           onReorderTasks={onReorderTasks}
           onGenerateSubtask={onGenerateSubtask}
+          onToggleCompletion={onToggleCompletion}
         />
       ))}
     </ul>

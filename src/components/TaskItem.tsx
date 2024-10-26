@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Task } from '../types';
-import { Edit2, Trash2, Plus, Sparkles, ArrowUp, ArrowDown, Check, X } from 'lucide-react';
+import { Edit2, Trash2, Plus, Sparkles, ArrowUp, ArrowDown, Check, X, CheckCircle2 } from 'lucide-react';
 
 interface TaskItemProps {
   task: Task;
@@ -8,11 +8,13 @@ interface TaskItemProps {
   isFirst: boolean;
   isLast: boolean;
   parentId?: number;
+  parentCompleted?: boolean;
   onDelete: (id: number, parentId?: number) => void;
   onEdit: (id: number, content: string, parentId?: number) => void;
   onAddSubtask: (parentId: number, content: string) => void;
   onReorderTasks: (taskId: number, direction: 'up' | 'down', parentId?: number) => void;
   onGenerateSubtask: (parentId: number, context: string) => Promise<string>;
+  onToggleCompletion: (id: number, parentId?: number) => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -21,11 +23,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
   isFirst,
   isLast,
   parentId,
+  parentCompleted,
   onDelete,
   onEdit,
   onAddSubtask,
   onReorderTasks,
   onGenerateSubtask,
+  onToggleCompletion,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(task.content);
@@ -36,6 +40,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const newSubtaskTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const isMainTask = !parentId;
+  const shouldHideActions = task.completed || parentCompleted;
 
   useEffect(() => {
     if (isEditing && editTextareaRef.current) {
@@ -90,6 +95,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const getGradientClass = () => {
+    if (task.completed) {
+      return 'from-slate-600/10 to-slate-700/10';
+    }
     const gradients = [
       'from-blue-500/10 to-purple-500/10',
       'from-purple-500/10 to-pink-500/10',
@@ -97,16 +105,16 @@ const TaskItem: React.FC<TaskItemProps> = ({
       'from-pink-500/10 to-orange-500/10',
       'from-yellow-500/10 to-green-500/10'
     ];
-    // Use task.id instead of index to maintain color consistency during reordering
-    return gradients[task.id % gradients.length];
+    return gradients[task.gradientIndex ?? 0];
   };
 
   return (
     <li className={`
-      ${isMainTask ? `bg-gradient-to-r ${getGradientClass()}` : 'bg-white/5'} 
+      ${isMainTask ? `bg-gradient-to-r ${getGradientClass()}` : task.completed ? 'bg-slate-700/10' : 'bg-white/5'} 
       backdrop-blur-sm rounded-xl border border-white/10 transition-all hover:border-white/20
       ${isMainTask ? 'hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'hover:bg-white/10'}
       transform duration-200
+      ${task.completed ? 'opacity-75' : ''}
     `}>
       <div className="p-4">
         {isEditing ? (
@@ -135,58 +143,75 @@ const TaskItem: React.FC<TaskItemProps> = ({
           </div>
         ) : (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <span className={`break-words ${isMainTask ? 'text-white font-medium' : 'text-slate-300'}`}>
-              {task.content}
-            </span>
-            <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-0">
-              {!isFirst && (
-                <button 
-                  onClick={() => onReorderTasks(task.id, 'up', parentId)}
-                  className="p-2 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
-                  aria-label="Move up"
-                >
-                  <ArrowUp size={18} />
-                </button>
-              )}
-              {!isLast && (
-                <button 
-                  onClick={() => onReorderTasks(task.id, 'down', parentId)}
-                  className="p-2 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
-                  aria-label="Move down"
-                >
-                  <ArrowDown size={18} />
-                </button>
-              )}
-              <button 
-                onClick={() => setIsEditing(true)}
-                className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors"
-                aria-label="Edit task"
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                onClick={() => onToggleCompletion(task.id, parentId)}
+                className={`flex-shrink-0 p-2 rounded-lg transition-colors ${
+                  task.completed
+                    ? 'text-green-400 hover:text-green-300 hover:bg-green-400/10'
+                    : 'text-slate-400 hover:text-slate-300 hover:bg-white/10'
+                }`}
+                aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
               >
-                <Edit2 size={18} />
+                <CheckCircle2 size={18} className={task.completed ? 'fill-green-400' : ''} />
               </button>
+              <span className={`break-words ${isMainTask ? 'text-white font-medium' : 'text-slate-300'} ${task.completed ? 'line-through opacity-75' : ''}`}>
+                {task.content}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-0">
+              {!shouldHideActions && (
+                <>
+                  {!isFirst && (
+                    <button 
+                      onClick={() => onReorderTasks(task.id, 'up', parentId)}
+                      className="p-2 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
+                      aria-label="Move up"
+                    >
+                      <ArrowUp size={18} />
+                    </button>
+                  )}
+                  {!isLast && (
+                    <button 
+                      onClick={() => onReorderTasks(task.id, 'down', parentId)}
+                      className="p-2 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
+                      aria-label="Move down"
+                    >
+                      <ArrowDown size={18} />
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => setIsEditing(true)}
+                    className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors"
+                    aria-label="Edit task"
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                  <button
+                    onClick={handleAddSubtask}
+                    className="p-2 text-green-400 hover:text-green-300 hover:bg-green-400/10 rounded-lg transition-colors"
+                    aria-label="Add subtask"
+                  >
+                    <Plus size={18} />
+                  </button>
+                  <button
+                    onClick={handleGenerateSubtask}
+                    disabled={isGeneratingSubtask}
+                    className={`p-2 text-purple-400 hover:text-purple-300 hover:bg-purple-400/10 rounded-lg transition-colors ${
+                      isGeneratingSubtask ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    aria-label="Generate subtask with AI"
+                  >
+                    <Sparkles size={18} />
+                  </button>
+                </>
+              )}
               <button 
                 onClick={handleDelete}
                 className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
                 aria-label="Delete task"
               >
                 <Trash2 size={18} />
-              </button>
-              <button
-                onClick={handleAddSubtask}
-                className="p-2 text-green-400 hover:text-green-300 hover:bg-green-400/10 rounded-lg transition-colors"
-                aria-label="Add subtask"
-              >
-                <Plus size={18} />
-              </button>
-              <button
-                onClick={handleGenerateSubtask}
-                disabled={isGeneratingSubtask}
-                className={`p-2 text-purple-400 hover:text-purple-300 hover:bg-purple-400/10 rounded-lg transition-colors ${
-                  isGeneratingSubtask ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-                aria-label="Generate subtask with AI"
-              >
-                <Sparkles size={18} />
               </button>
             </div>
           </div>
@@ -234,11 +259,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
               isFirst={subtaskIndex === 0}
               isLast={subtaskIndex === task.subtasks.length - 1}
               parentId={task.id}
+              parentCompleted={task.completed}
               onDelete={onDelete}
               onEdit={onEdit}
               onAddSubtask={onAddSubtask}
               onReorderTasks={onReorderTasks}
               onGenerateSubtask={onGenerateSubtask}
+              onToggleCompletion={onToggleCompletion}
             />
           ))}
         </ul>

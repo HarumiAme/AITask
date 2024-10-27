@@ -182,8 +182,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
             </button>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+          <div className="flex sm:items-start justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
               <button
                 onClick={() => onToggleCompletion(task.id, parentId)}
                 className={`flex-shrink-0 p-2 rounded-lg transition-colors ${
@@ -200,9 +200,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   className={task.completed ? 'fill-green-400' : ''}
                 />
               </button>
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-start gap-2 min-w-0 flex-1 break-words">
                 <span
-                  className={`break-words ${
+                  className={`${
                     isMainTask ? 'text-white font-medium' : 'text-slate-300'
                   } ${task.completed ? 'line-through opacity-75' : ''}`}
                 >
@@ -211,7 +211,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 {hasSubtasks && (
                   <button
                     onClick={() => setShowSubtasks(!showSubtasks)}
-                    className="p-1 text-slate-400 hover:text-slate-300 transition-colors rounded-lg hover:bg-white/10"
+                    className="flex-shrink-0 p-1 text-slate-400 hover:text-slate-300 transition-colors rounded-lg hover:bg-white/10 mt-0.5"
                   >
                     {showSubtasks ? (
                       <ChevronUp size={16} className="opacity-75" />
@@ -225,7 +225,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 )}
               </div>
             </div>
-            <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-0">
+            <div className="flex flex-shrink-0 flex-wrap items-center justify-end gap-1">
               {!shouldHideActions && (
                 <>
                   {!isFirst && (

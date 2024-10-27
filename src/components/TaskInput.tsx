@@ -47,7 +47,7 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onGenerateTask }) => {
           ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Add a new task..."
+          placeholder="Agregar nueva tarea..."
           className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none overflow-hidden placeholder-slate-400 text-white"
           rows={1}
           style={{ minHeight: '48px' }}

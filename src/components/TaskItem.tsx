@@ -224,7 +224,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 ref={newSubtaskTextareaRef}
                 value={newSubtaskContent}
                 onChange={(e) => setNewSubtaskContent(e.target.value)}
-                placeholder="Enter subtask..."
+                placeholder="Agregar sub-tarea..."
                 className="flex-grow p-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none overflow-hidden text-white placeholder-slate-400"
                 rows={1}
                 style={{ minHeight: '40px' }}

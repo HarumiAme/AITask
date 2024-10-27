@@ -26,22 +26,22 @@ export default async function handler(req, res) {
   try {
     const { prompt } = req.body;
 
-    const systemPrompt = `You are a task management AI assistant specialized in creating main tasks.
-Your role is to:
-1. Create clear, high-level tasks that can be broken down
-2. Ensure tasks are actionable and measurable
-3. Keep tasks broad enough to have subtasks, but specific enough to be achievable
-4. Use clear, professional language
-5. Focus on one main objective per task`;
+    const systemPrompt = `Eres un asistente de gestión de tareas especializado en crear tareas principales.
+Tu rol es:
+1. Crear tareas claras y de alto nivel que puedan desglosarse
+2. Asegurarte de que las tareas sean accionables y medibles
+3. Mantener las tareas lo suficientemente amplias como para tener subtareas, pero lo suficientemente específicas como para ser alcanzables
+4. Usar un lenguaje claro y profesional
+5. Enfocarte en un objetivo principal por tarea`;
 
-    const userPrompt = `Create ONE main task based on this context: ${prompt}
+    const userPrompt = `Crea UNA tarea principal basada en este contexto: ${prompt}
 
-The task should be:
-- Broad enough to be broken down into subtasks
-- Specific enough to have a clear goal
-- Written in a clear, actionable format
+La tarea debe ser:
+- Lo suficientemente amplia para desglosarse en subtareas
+- Lo suficientemente específica como para tener un objetivo claro
+- Escrita en un formato claro y accionable
 
-Respond ONLY with the task text, no explanations or additional formatting.`;
+Responde SOLO con el texto de la tarea, sin explicaciones ni formato adicional.`;
 
     const generatedTask = await generateCompletion(systemPrompt, userPrompt);
     res.json({ tarea: generatedTask });

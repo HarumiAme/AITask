@@ -51,22 +51,22 @@ const apiPlugin = () => ({
           switch (endpoint) {
             case '/generate-main-task': {
               const { prompt } = data;
-              const systemPrompt = `You are a task management AI assistant specialized in creating main tasks.
-Your role is to:
-1. Create clear, high-level tasks that can be broken down
-2. Ensure tasks are actionable and measurable
-3. Keep tasks broad enough to have subtasks, but specific enough to be achievable
-4. Use clear, professional language
-5. Focus on one main objective per task`;
+              const systemPrompt = `Eres un asistente de gestión de tareas especializado en crear tareas principales.
+Tu rol es:
+1. Crear tareas claras y de alto nivel que puedan desglosarse
+2. Asegurarte de que las tareas sean accionables y medibles
+3. Mantener las tareas lo suficientemente amplias como para tener subtareas, pero lo suficientemente específicas como para ser alcanzables
+4. Usar un lenguaje claro y profesional
+5. Enfocarte en un objetivo principal por tarea`;
 
-              const userPrompt = `Create ONE main task based on this context: ${prompt}
+              const userPrompt = `Crea UNA tarea principal basada en este contexto: ${prompt}
 
-The task should be:
-- Broad enough to be broken down into subtasks
-- Specific enough to have a clear goal
-- Written in a clear, actionable format
+La tarea debe ser:
+- Lo suficientemente amplia para desglosarse en subtareas
+- Lo suficientemente específica como para tener un objetivo claro
+- Escrita en un formato claro y accionable
 
-Respond ONLY with the task text, no explanations or additional formatting.`;
+Responde SOLO con el texto de la tarea, sin explicaciones ni formato adicional.`;
 
               const generatedTask = await generateCompletion(systemPrompt, userPrompt);
               response = { tarea: generatedTask };
@@ -75,24 +75,24 @@ Respond ONLY with the task text, no explanations or additional formatting.`;
 
             case '/generate-first-subtask': {
               const { mainTask } = data;
-              const systemPrompt = `You are a task management AI assistant specialized in creating initial subtasks.
-Your role is to:
-1. Create the first logical step towards completing the main task
-2. Ensure the subtask is specific and immediately actionable
-3. Focus on getting started with the main task
-4. Keep the scope small and manageable
-5. Create a foundation for subsequent subtasks`;
+              const systemPrompt = `Eres un asistente de gestión de tareas especializado en crear subtareas iniciales.
+Tu rol es:
+1. Crear el primer paso lógico hacia la finalización de la tarea principal
+2. Asegurarte de que la subtarea sea específica e inmediatamente accionable
+3. Enfocarte en comenzar la tarea principal
+4. Mantener el alcance pequeño y manejable
+5. Crear una base para subtareas posteriores`;
 
-              const userPrompt = `Main Task: ${mainTask}
+              const userPrompt = `Tarea Principal: ${mainTask}
 
-Create the FIRST subtask that should be completed for this main task.
-This should be:
-- The logical first step
-- Immediately actionable
-- Specific and clear
-- A foundation for future subtasks
+Crea la PRIMERA subtarea que debería completarse para esta tarea principal.
+Esta subtarea debe ser:
+- El primer paso lógico
+- Inmediatamente accionable
+- Específica y clara
+- Una base para futuras subtareas
 
-Respond ONLY with the subtask text itself; do not include any labels, explanations, or additional formatting.`;
+Responde SOLO con el texto de la subtarea; no incluyas etiquetas, explicaciones ni formato adicional.`;
 
               const generatedTask = await generateCompletion(systemPrompt, userPrompt);
               response = { tarea: generatedTask };
@@ -101,25 +101,25 @@ Respond ONLY with the subtask text itself; do not include any labels, explanatio
 
             case '/generate-subtask': {
               const { mainTask, existingSubtasks, parentSubtask } = data;
-              const systemPrompt = `You are a task management AI assistant specialized in creating sequential subtasks.
-Your role is to:
-1. Create the next logical subtask in the sequence
-2. Ensure continuity with existing subtasks
-3. Keep the task specific and actionable
-4. Maintain focus on the main task's goal
-5. Consider the context of parent subtask and siblings`;
+              const systemPrompt = `Eres un asistente de gestión de tareas especializado en crear subtareas secuenciales.
+Tu rol es:
+1. Crear la siguiente subtarea lógica en la secuencia
+2. Asegurar la continuidad con las subtareas existentes
+3. Mantener la tarea específica y accionable
+4. Mantener el enfoque en el objetivo de la tarea principal
+5. Considerar el contexto de la subtarea principal y sus subtareas relacionadas`;
 
-              const userPrompt = `Main Task: ${mainTask}
-Parent Subtask: ${parentSubtask}
-Existing Subtasks: ${existingSubtasks.join(', ')}
+              const userPrompt = `Tarea Principal: ${mainTask}
+Subtarea Principal: ${parentSubtask}
+Subtareas Existentes: ${existingSubtasks.join(', ')}
 
-Create the next logical subtask that:
-- Follows naturally from the parent subtask
-- Doesn't duplicate existing subtasks
-- Moves closer to completing the main task
-- Is specific and immediately actionable
+Crea la siguiente subtarea lógica que:
+- Siga de manera natural la subtarea principal
+- No duplique las subtareas existentes
+- Acerque más a la finalización de la tarea principal
+- Sea específica e inmediatamente accionable
 
-Respond ONLY with the subtask text itself; do not include any labels, explanations, or additional formatting.`;
+Responde SOLO con el texto de la subtarea; no incluyas etiquetas, explicaciones ni formato adicional.`;
 
               const generatedTask = await generateCompletion(systemPrompt, userPrompt);
               response = { tarea: generatedTask };

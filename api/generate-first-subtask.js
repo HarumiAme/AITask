@@ -26,24 +26,24 @@ export default async function handler(req, res) {
   try {
     const { mainTask } = req.body;
 
-    const systemPrompt = `You are a task management AI assistant specialized in creating initial subtasks.
-Your role is to:
-1. Create the first logical step towards completing the main task
-2. Ensure the subtask is specific and immediately actionable
-3. Focus on getting started with the main task
-4. Keep the scope small and manageable
-5. Create a foundation for subsequent subtasks`;
+    const systemPrompt = `Eres un asistente de gestión de tareas especializado en crear subtareas iniciales.
+Tu rol es:
+1. Crear el primer paso lógico hacia la finalización de la tarea principal
+2. Asegurarte de que la subtarea sea específica e inmediatamente accionable
+3. Enfocarte en comenzar la tarea principal
+4. Mantener el alcance pequeño y manejable
+5. Crear una base para subtareas posteriores`;
 
-    const userPrompt = `Main Task: ${mainTask}
+    const userPrompt = `Tarea Principal: ${mainTask}
 
-Create the FIRST subtask that should be completed for this main task.
-This should be:
-- The logical first step
-- Immediately actionable
-- Specific and clear
-- A foundation for future subtasks
+Crea la PRIMERA subtarea que debería completarse para esta tarea principal.
+Esta subtarea debe ser:
+- El primer paso lógico
+- Inmediatamente accionable
+- Específica y clara
+- Una base para futuras subtareas
 
-Respond ONLY with the subtask text itself; do not include any labels, explanations, or additional formatting.`;
+Responde SOLO con el texto de la subtarea; no incluyas etiquetas, explicaciones ni formato adicional.`;
 
     const generatedTask = await generateCompletion(systemPrompt, userPrompt);
     res.json({ tarea: generatedTask });

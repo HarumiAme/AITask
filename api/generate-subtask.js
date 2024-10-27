@@ -26,25 +26,25 @@ export default async function handler(req, res) {
   try {
     const { mainTask, existingSubtasks, parentSubtask } = req.body;
 
-    const systemPrompt = `You are a task management AI assistant specialized in creating sequential subtasks.
-Your role is to:
-1. Create the next logical subtask in the sequence
-2. Ensure continuity with existing subtasks
-3. Keep the task specific and actionable
-4. Maintain focus on the main task's goal
-5. Consider the context of parent subtask and siblings`;
+    const systemPrompt = `Eres un asistente de gestión de tareas especializado en crear subtareas secuenciales.
+Tu rol es:
+1. Crear la siguiente subtarea lógica en la secuencia
+2. Asegurar la continuidad con las subtareas existentes
+3. Mantener la tarea específica y accionable
+4. Mantener el enfoque en el objetivo de la tarea principal
+5. Considerar el contexto de la subtarea principal y sus subtareas relacionadas`;
 
-    const userPrompt = `Main Task: ${mainTask}
-Parent Subtask: ${parentSubtask}
-Existing Subtasks: ${existingSubtasks.join(', ')}
+    const userPrompt = `Tarea Principal: ${mainTask}
+Subtarea Principal: ${parentSubtask}
+Subtareas Existentes: ${existingSubtasks.join(', ')}
 
-Create the next logical subtask that:
-- Follows naturally from the parent subtask
-- Doesn't duplicate existing subtasks
-- Moves closer to completing the main task
-- Is specific and immediately actionable
+Crea la siguiente subtarea lógica que:
+- Siga de manera natural la subtarea principal
+- No duplique las subtareas existentes
+- Acerque más a la finalización de la tarea principal
+- Sea específica e inmediatamente accionable
 
-Respond ONLY with the subtask text itself; do not include any labels, explanations, or additional formatting.`;
+Responde SOLO con el texto de la subtarea; no incluyas etiquetas, explicaciones ni formato adicional.`;
 
     const generatedTask = await generateCompletion(systemPrompt, userPrompt);
     res.json({ tarea: generatedTask });

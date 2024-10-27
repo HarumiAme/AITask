@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-// In development, use the Vite dev server proxy
-// In production, use relative path for Vercel
-const API_URL = '/api';
+// Use Vercel URL in production, local dev server in development
+const API_URL = import.meta.env.PROD 
+  ? '/api'
+  : 'http://localhost:3000/api';
 
 export const AIService = {
   generateMainTask: async (prompt: string): Promise<string> => {

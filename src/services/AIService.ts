@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? '/api'  // In production, use relative path for Vercel
+  : 'http://localhost:3000/api'; // In development, use local server
 
 export const AIService = {
   generateMainTask: async (prompt: string): Promise<string> => {

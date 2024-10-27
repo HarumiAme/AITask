@@ -17,7 +17,7 @@ const openai = new OpenAI({
 
 const generarCompletado = async (sistemaPrompt, usuarioPrompt) => {
   const respuesta = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4o-mini', // Change made here
     messages: [
       { role: 'system', content: sistemaPrompt },
       { role: 'user', content: usuarioPrompt }

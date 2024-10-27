@@ -22,21 +22,22 @@ const TaskList: React.FC<TaskListProps> = ({
   onToggleCompletion,
 }) => {
   return (
-    <ul className="space-y-4">
+    <ul className="space-y-4 relative">
       {tasks.map((task, index) => (
-        <TaskItem
-          key={task.id}
-          task={task}
-          index={index}
-          isFirst={index === 0}
-          isLast={index === tasks.length - 1}
-          onDelete={onDeleteTask}
-          onEdit={onEditTask}
-          onAddSubtask={onAddSubtask}
-          onReorderTasks={onReorderTasks}
-          onGenerateSubtask={onGenerateSubtask}
-          onToggleCompletion={onToggleCompletion}
-        />
+        <li key={task.id} className="transform transition-transform duration-200 ease-in-out">
+          <TaskItem
+            task={task}
+            index={index}
+            isFirst={index === 0}
+            isLast={index === tasks.length - 1}
+            onDelete={onDeleteTask}
+            onEdit={onEditTask}
+            onAddSubtask={onAddSubtask}
+            onReorderTasks={onReorderTasks}
+            onGenerateSubtask={onGenerateSubtask}
+            onToggleCompletion={onToggleCompletion}
+          />
+        </li>
       ))}
     </ul>
   );

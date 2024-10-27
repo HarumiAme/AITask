@@ -59,7 +59,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
   const isMainTask = !parentId;
   const shouldHideActions = task.completed || parentCompleted;
-
   const activeSubtasks = task.subtasks.filter(subtask => !subtask.completed);
   const completedSubtasks = task.subtasks.filter(subtask => subtask.completed);
   const hasSubtasks = task.subtasks.length > 0;
@@ -82,6 +81,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const handleEdit = () => {
     onEdit(task.id, editedContent, parentId);
     setIsEditing(false);
+    setShowSubtasks(true);
   };
 
   const handleDelete = () => {
@@ -91,7 +91,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const handleAddSubtask = () => {
     setIsAddingSubtask(true);
     setNewSubtaskContent('');
-    setShowSubtasks(true);
   };
 
   const handleSubmitSubtask = (e: React.FormEvent) => {
@@ -100,6 +99,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
       onAddSubtask(isMainTask ? task.id : parentId!, newSubtaskContent.trim());
       setNewSubtaskContent('');
       setIsAddingSubtask(false);
+      setShowSubtasks(true);
     }
   };
 
@@ -115,7 +115,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
       );
       setNewSubtaskContent(generatedSubtask.trim());
       setIsAddingSubtask(true);
-      setShowSubtasks(true);
     } catch (error) {
       console.error('Error generating subtask:', error);
     } finally {
@@ -137,25 +136,25 @@ const TaskItem: React.FC<TaskItemProps> = ({
     return gradients[task.gradientIndex ?? 0];
   };
 
-  return (
-    <li
+  const TaskContent = () => (
+    <div
       className={`
-      ${
-        isMainTask
-          ? `bg-gradient-to-r ${getGradientClass()}`
-          : task.completed
-          ? 'bg-slate-700/10'
-          : 'bg-white/5'
-      } 
-      backdrop-blur-sm rounded-xl border border-white/10 transition-all hover:border-white/20
-      ${
-        isMainTask
-          ? 'hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]'
-          : 'hover:bg-white/10'
-      }
-      transform duration-200
-      ${task.completed ? 'opacity-75' : ''}
-    `}
+        ${
+          isMainTask
+            ? `bg-gradient-to-r ${getGradientClass()}`
+            : task.completed
+            ? 'bg-slate-700/10'
+            : 'bg-white/5'
+        } 
+        backdrop-blur-sm rounded-xl border border-white/10 transition-all hover:border-white/20
+        ${
+          isMainTask
+            ? 'hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]'
+            : 'hover:bg-white/10'
+        }
+        transform duration-200
+        ${task.completed ? 'opacity-75' : ''}
+      `}
     >
       <div className="p-4">
         {isEditing ? (
@@ -319,23 +318,27 @@ const TaskItem: React.FC<TaskItemProps> = ({
       {isMainTask && hasSubtasks && showSubtasks && (
         <div className="pl-6 pr-2 pb-2 space-y-2">
           {activeSubtasks.length > 0 && (
-            <ul className="space-y-2">
+            <ul className="space-y-2 relative">
               {activeSubtasks.map((subtask, subtaskIndex) => (
-                <TaskItem
+                <li
                   key={subtask.id}
-                  task={subtask}
-                  index={subtaskIndex}
-                  isFirst={subtaskIndex === 0}
-                  isLast={subtaskIndex === activeSubtasks.length - 1}
-                  parentId={task.id}
-                  parentCompleted={task.completed}
-                  onDelete={onDelete}
-                  onEdit={onEdit}
-                  onAddSubtask={onAddSubtask}
-                  onReorderTasks={onReorderTasks}
-                  onGenerateSubtask={onGenerateSubtask}
-                  onToggleCompletion={onToggleCompletion}
-                />
+                  className="transform transition-transform duration-200 ease-in-out"
+                >
+                  <TaskItem
+                    task={subtask}
+                    index={subtaskIndex}
+                    isFirst={subtaskIndex === 0}
+                    isLast={subtaskIndex === activeSubtasks.length - 1}
+                    parentId={task.id}
+                    parentCompleted={task.completed}
+                    onDelete={onDelete}
+                    onEdit={onEdit}
+                    onAddSubtask={onAddSubtask}
+                    onReorderTasks={onReorderTasks}
+                    onGenerateSubtask={onGenerateSubtask}
+                    onToggleCompletion={onToggleCompletion}
+                  />
+                </li>
               ))}
             </ul>
           )}
@@ -356,23 +359,27 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 )}
               </button>
               {showCompletedSubtasks && (
-                <ul className="mt-2 space-y-2">
+                <ul className="mt-2 space-y-2 relative">
                   {completedSubtasks.map((subtask, subtaskIndex) => (
-                    <TaskItem
+                    <li
                       key={subtask.id}
-                      task={subtask}
-                      index={subtaskIndex}
-                      isFirst={subtaskIndex === 0}
-                      isLast={subtaskIndex === completedSubtasks.length - 1}
-                      parentId={task.id}
-                      parentCompleted={task.completed}
-                      onDelete={onDelete}
-                      onEdit={onEdit}
-                      onAddSubtask={onAddSubtask}
-                      onReorderTasks={onReorderTasks}
-                      onGenerateSubtask={onGenerateSubtask}
-                      onToggleCompletion={onToggleCompletion}
-                    />
+                      className="transform transition-transform duration-200 ease-in-out"
+                    >
+                      <TaskItem
+                        task={subtask}
+                        index={subtaskIndex}
+                        isFirst={subtaskIndex === 0}
+                        isLast={subtaskIndex === completedSubtasks.length - 1}
+                        parentId={task.id}
+                        parentCompleted={task.completed}
+                        onDelete={onDelete}
+                        onEdit={onEdit}
+                        onAddSubtask={onAddSubtask}
+                        onReorderTasks={onReorderTasks}
+                        onGenerateSubtask={onGenerateSubtask}
+                        onToggleCompletion={onToggleCompletion}
+                      />
+                    </li>
                   ))}
                 </ul>
               )}
@@ -380,8 +387,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
           )}
         </div>
       )}
-    </li>
+    </div>
   );
+
+  return <TaskContent />;
 };
 
 export default TaskItem;

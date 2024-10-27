@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 const openai = new OpenAI({
-  apiKey: process.env.VITE_OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 app.post('/api/generate-task', async (req, res) => {

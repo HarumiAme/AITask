@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.NODE_ENV === 'production' 
-  ? '/api'  // In production, use relative path for Vercel
-  : 'http://localhost:3000/api'; // In development, use local server
+// Always use relative path - Vite's proxy will handle the routing
+const API_URL = '/api';
 
 export const AIService = {
   generateMainTask: async (prompt: string): Promise<string> => {

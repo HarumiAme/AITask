@@ -8,6 +8,7 @@
 ### Clonar proyecto
 ```bash
 git clone https://github.com/HarumiAme/AITask.git
+cd AITask
 ```
 ### Instalar dependencias
 ```bash

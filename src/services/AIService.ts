@@ -1,22 +1,33 @@
-import axios from 'axios';
+import { OpenAI } from 'openai';
 
-const API_URL = 'http://localhost:5001/api';
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true  // Only if absolutely necessary
+});
 
 export const AIService = {
   generateTask: async (prompt: string): Promise<string> => {
     try {
-      const response = await axios.post(`${API_URL}/v1/generate`, {
-        prompt: `Generate a task based on the following context: ${prompt}`,
-        max_context_length: 2048,
-        max_length: 200,
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful task management assistant. Generate clear, concise, and actionable tasks."
+          },
+          {
+            role: "user",
+            content: `Generate a task based on the following context: ${prompt}`
+          }
+        ],
+        max_tokens: 100,
         temperature: 0.7,
-        top_p: 0.9,
       });
 
-      return response.data.results[0].text.trim();
+      return response.choices[0]?.message?.content?.trim() ?? 'Failed to generate task';
     } catch (error) {
-      console.error('Error generating task with AI:', error);
-      return 'Failed to generate task';
+      console.error('Error generating task with OpenAI:', error);
+      return 'An error occurred. Please try again.';
     }
   },
 };

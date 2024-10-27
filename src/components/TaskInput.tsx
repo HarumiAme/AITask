@@ -31,10 +31,7 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onGenerateTask }) => {
       setIsGenerating(true);
       try {
         const generatedTask = await onGenerateTask(input.trim());
-        setInput((prevInput) => {
-          const separator = prevInput.endsWith('.') || prevInput.endsWith('!') || prevInput.endsWith('?') ? ' ' : '. ';
-          return `${prevInput}${separator}${generatedTask}`;
-        });
+        setInput(generatedTask);
       } catch (error) {
         console.error('Error generating task:', error);
       } finally {

@@ -28,7 +28,7 @@ app.post('/api/generate-task', async (req, res) => {
         },
         {
           role: 'user',
-          content: `Generate a task based on the following context: ${prompt}`,
+          content: `Generate a task based on the following context: ${prompt} don't include any title, only the task itself.`,
         },
       ],
       max_tokens: 100,

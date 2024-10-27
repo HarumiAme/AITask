@@ -21,6 +21,7 @@ interface TaskItemProps {
   isFirst: boolean;
   isLast: boolean;
   parentId?: number;
+  parentTask?: Task;
   parentCompleted?: boolean;
   onDelete: (id: number, parentId?: number) => void;
   onEdit: (id: number, content: string, parentId?: number) => void;
@@ -39,6 +40,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   isFirst,
   isLast,
   parentId,
+  parentTask,
   parentCompleted,
   onDelete,
   onEdit,
@@ -67,7 +69,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
       const textarea = editTextareaRef.current;
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
-      // Set cursor at the end
       textarea.selectionStart = textarea.value.length;
       textarea.selectionEnd = textarea.value.length;
       textarea.focus();
@@ -79,7 +80,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
       const textarea = newSubtaskTextareaRef.current;
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
-      // Set cursor at the end
       textarea.selectionStart = textarea.value.length;
       textarea.selectionEnd = textarea.value.length;
       textarea.focus();
@@ -105,10 +105,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
     e.preventDefault();
     if (newSubtaskContent.trim()) {
       if (isMainTask) {
-        // For main tasks, add subtask at the beginning of the list
         onAddSubtask(task.id, newSubtaskContent.trim());
       } else {
-        // For subtasks, add sibling after the current task
         onAddSubtask(parentId!, newSubtaskContent.trim(), task.id);
       }
       setNewSubtaskContent('');
@@ -117,16 +115,20 @@ const TaskItem: React.FC<TaskItemProps> = ({
     }
   };
 
+  const getSubtasksUpToIndex = (taskList: Task[], currentIndex: number): string[] => {
+    return taskList
+      .slice(0, currentIndex + 1)
+      .map(t => t.content);
+  };
+
   const handleGenerateSubtask = async () => {
     setIsGeneratingSubtask(true);
     try {
       let generatedSubtask;
       if (isMainTask) {
         if (task.subtasks.length === 0) {
-          // Generate first subtask for a main task
           generatedSubtask = await AIService.generateFirstSubtask(task.content);
         } else {
-          // Generate a subtask considering existing subtasks
           const existingSubtasks = task.subtasks.map(st => st.content);
           generatedSubtask = await AIService.generateSubtask(
             task.content,
@@ -134,18 +136,21 @@ const TaskItem: React.FC<TaskItemProps> = ({
             existingSubtasks
           );
         }
-      } else {
-        // Generate sibling subtask
-        const parentTask = task.content;
-        const siblingSubtasks = task.subtasks.map(st => st.content);
+      } else if (parentTask) {
+        const currentTaskIndex = parentTask.subtasks.findIndex(st => st.id === task.id);
+        const subtasksUpToCurrent = getSubtasksUpToIndex(parentTask.subtasks, currentTaskIndex);
+        
         generatedSubtask = await AIService.generateSubtask(
-          parentTask,
+          parentTask.content,
           task.content,
-          siblingSubtasks
+          subtasksUpToCurrent
         );
       }
-      setNewSubtaskContent(generatedSubtask.trim());
-      setIsAddingSubtask(true);
+
+      if (generatedSubtask) {
+        setNewSubtaskContent(generatedSubtask.trim());
+        setIsAddingSubtask(true);
+      }
     } catch (error) {
       console.error('Error generating subtask:', error);
     } finally {
@@ -167,7 +172,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
     return gradients[task.gradientIndex ?? 0];
   };
 
-  const TaskContent = () => (
+  return (
     <div
       className={`
         ${
@@ -197,6 +202,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               className="flex-grow p-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none overflow-hidden text-white"
               rows={1}
               style={{ minHeight: '40px' }}
+              autoFocus
             />
             <button
               onClick={handleEdit}
@@ -212,11 +218,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
             </button>
           </div>
         ) : (
-          <div className="flex sm:items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 min-w-0 flex-1">
               <button
                 onClick={() => onToggleCompletion(task.id, parentId)}
-                className={`flex-shrink-0 p-2 rounded-lg transition-colors ${
+                className={`flex-shrink-0 mt-0.5 p-1.5 rounded-lg transition-colors ${
                   task.completed
                     ? 'text-green-400 hover:text-green-300 hover:bg-green-400/10'
                     : 'text-slate-400 hover:text-slate-300 hover:bg-white/10'
@@ -230,7 +236,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   className={task.completed ? 'fill-green-400' : ''}
                 />
               </button>
-              <div className="flex items-start gap-2 min-w-0 flex-1 break-words">
+              <div className="flex items-start gap-2 min-w-0 flex-1 pt-1">
                 <span
                   className={`${
                     isMainTask ? 'text-white font-medium' : 'text-slate-300'
@@ -241,7 +247,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 {hasSubtasks && (
                   <button
                     onClick={() => setShowSubtasks(!showSubtasks)}
-                    className="flex-shrink-0 p-1 text-slate-400 hover:text-slate-300 transition-colors rounded-lg hover:bg-white/10 mt-0.5"
+                    className="flex-shrink-0 p-1 text-slate-400 hover:text-slate-300 transition-colors rounded-lg hover:bg-white/10"
                   >
                     {showSubtasks ? (
                       <ChevronUp size={16} className="opacity-75" />
@@ -255,13 +261,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 )}
               </div>
             </div>
-            <div className="flex flex-shrink-0 flex-wrap items-center justify-end gap-1">
+            <div className="flex flex-shrink-0 items-start gap-1 pt-0.5">
               {!shouldHideActions && (
                 <>
                   {!isFirst && (
                     <button
                       onClick={() => onReorderTasks(task.id, 'up', parentId)}
-                      className="p-2 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
                       aria-label="Move up"
                     >
                       <ArrowUp size={18} />
@@ -270,7 +276,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   {!isLast && (
                     <button
                       onClick={() => onReorderTasks(task.id, 'down', parentId)}
-                      className="p-2 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-lg transition-colors"
                       aria-label="Move down"
                     >
                       <ArrowDown size={18} />
@@ -278,14 +284,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   )}
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors"
+                    className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors"
                     aria-label="Edit task"
                   >
                     <Edit2 size={18} />
                   </button>
                   <button
                     onClick={handleAddSubtask}
-                    className="p-2 text-green-400 hover:text-green-300 hover:bg-green-400/10 rounded-lg transition-colors"
+                    className="p-1.5 text-green-400 hover:text-green-300 hover:bg-green-400/10 rounded-lg transition-colors"
                     aria-label="Add subtask"
                   >
                     <Plus size={18} />
@@ -293,7 +299,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   <button
                     onClick={handleGenerateSubtask}
                     disabled={isGeneratingSubtask}
-                    className={`p-2 text-purple-400 hover:text-purple-300 hover:bg-purple-400/10 rounded-lg transition-colors ${
+                    className={`p-1.5 text-purple-400 hover:text-purple-300 hover:bg-purple-400/10 rounded-lg transition-colors ${
                       isGeneratingSubtask ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                     aria-label="Generate subtask with AI"
@@ -304,7 +310,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               )}
               <button
                 onClick={handleDelete}
-                className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+                className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
                 aria-label="Delete task"
               >
                 <Trash2 size={18} />
@@ -360,6 +366,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                     isFirst={subtaskIndex === 0}
                     isLast={subtaskIndex === activeSubtasks.length - 1}
                     parentId={task.id}
+                    parentTask={task}
                     parentCompleted={task.completed}
                     onDelete={onDelete}
                     onEdit={onEdit}
@@ -400,6 +407,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                         isFirst={subtaskIndex === 0}
                         isLast={subtaskIndex === completedSubtasks.length - 1}
                         parentId={task.id}
+                        parentTask={task}
                         parentCompleted={task.completed}
                         onDelete={onDelete}
                         onEdit={onEdit}
@@ -417,8 +425,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
       )}
     </div>
   );
-
-  return <TaskContent />;
 };
 
 export default TaskItem;

@@ -6,9 +6,8 @@ interface TaskListProps {
   tasks: Task[];
   onDeleteTask: (id: number, parentId?: number) => void;
   onEditTask: (id: number, content: string, parentId?: number) => void;
-  onAddSubtask: (parentId: number, content: string) => void;
+  onAddSubtask: (parentId: number, content: string, insertAfter?: number) => void;
   onReorderTasks: (taskId: number, direction: 'up' | 'down') => void;
-  onGenerateSubtask: (parentId: number, context: string) => Promise<void>;
   onToggleCompletion: (id: number, parentId?: number) => void;
 }
 
@@ -18,7 +17,6 @@ const TaskList: React.FC<TaskListProps> = ({
   onEditTask,
   onAddSubtask,
   onReorderTasks,
-  onGenerateSubtask,
   onToggleCompletion,
 }) => {
   return (
@@ -27,6 +25,7 @@ const TaskList: React.FC<TaskListProps> = ({
         <li key={task.id} className="transform transition-transform duration-200 ease-in-out">
           <TaskItem
             task={task}
+            parentTask={task} // Pass the main task as parent for its subtasks
             index={index}
             isFirst={index === 0}
             isLast={index === tasks.length - 1}
@@ -34,7 +33,6 @@ const TaskList: React.FC<TaskListProps> = ({
             onEdit={onEditTask}
             onAddSubtask={onAddSubtask}
             onReorderTasks={onReorderTasks}
-            onGenerateSubtask={onGenerateSubtask}
             onToggleCompletion={onToggleCompletion}
           />
         </li>

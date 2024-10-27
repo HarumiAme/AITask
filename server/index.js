@@ -15,7 +15,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-app.post('/api/generate-task', async (req, res) => {
+app.post('/api/generar-tarea', async (req, res) => { // Keep this consistent with your front-end service
   try {
     const { prompt } = req.body;
     
@@ -24,25 +24,25 @@ app.post('/api/generate-task', async (req, res) => {
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful task management assistant. Generate clear, concise, and actionable tasks.',
+          content: 'Eres un asistente útil de gestión de tareas. Genera tareas claras, concisas y accionables.',
         },
         {
           role: 'user',
-          content: `Generate a task based on the following context: ${prompt}`,
+          content: `Genera una tarea basada en el siguiente contexto: ${prompt}`,
         },
       ],
       max_tokens: 100,
       temperature: 0.7,
     });
 
-    const generatedTask = response.choices[0]?.message?.content?.trim() ?? 'Failed to generate task';
-    res.json({ task: generatedTask });
+    const tareaGenerada = response.choices[0]?.message?.content?.trim() ?? 'Error al generar la tarea';
+    res.json({ tarea: tareaGenerada }); // Ensure this matches the front-end
   } catch (error) {
-    console.error('Error generating task:', error);
-    res.status(500).json({ error: 'Failed to generate task' });
+    console.error('Error generating the task:', error.message || error);
+    res.status(500).json({ error: 'Error al generar la tarea' });
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Servidor en funcionamiento en el puerto ${port}`);
 });

@@ -6,18 +6,18 @@
 
 ## Instrucciones 
 ### Clonar proyecto
-```
+```bash
 git clone https://github.com/HarumiAme/AITask.git
 ```
 ### Instalar dependencias
-```
+```bash
 npm install
 ```
 ### Agregar tu clave de API de openAI (en la raíz del proyecto)
-```
+```bash
 echo "OPENAI_API_KEY=[Tu clave de API]" > .env
 ```
 ### Ejecutar
-```
+```bash
 npm run dev
 ```

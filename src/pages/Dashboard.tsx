@@ -170,14 +170,14 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="hidden custom:inline text-slate-300/90">
-                Welcome, {user?.name}
+               ¡Hola,  {user?.name}!
               </span>
               <button
                 onClick={logout}
                 className="flex items-center space-x-2 px-4 py-2 text-slate-300/90 hover:text-white transition-colors"
               >
                 <LogOut className="w-5 h-5" />
-                <span>Logout</span>
+                <span>Cerrar sesión</span>
               </button>
             </div>
           </div>
@@ -195,7 +195,7 @@ const Dashboard: React.FC = () => {
               {activeTasks.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-slate-400">
-                    No active tasks. Add your first task above!
+                    No hay tareas activas. ¡Agrega tu primera tarea arriba!
                   </p>
                 </div>
               ) : (
@@ -218,7 +218,7 @@ const Dashboard: React.FC = () => {
                 onClick={() => setShowCompleted(!showCompleted)}
                 className="w-full p-4 flex items-center justify-between text-slate-300 hover:text-white transition-colors"
               >
-                <span className="text-lg font-medium">Completed Tasks ({completedTasks.length})</span>
+                <span className="text-lg font-medium">Tareas Completadas ({completedTasks.length})</span>
                 {showCompleted ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </button>
               {showCompleted && (

@@ -26,7 +26,7 @@ const Login: React.FC = () => {
 
       <div className="w-full max-w-md bg-white rounded-xl shadow-xl p-8">
         <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">
-          Welcome Back
+          Bienvenido de vuelta
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -46,7 +46,7 @@ const Login: React.FC = () => {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-              Password
+              Contraseña
             </label>
             <input
               type="password"
@@ -63,14 +63,14 @@ const Login: React.FC = () => {
             className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
           >
             <LogIn className="w-5 h-5" />
-            <span>Sign In</span>
+            <span>Iniciar Sesión</span>
           </button>
         </form>
 
         <p className="mt-6 text-center text-slate-600">
-          Don't have an account?{' '}
+          ¿Aún no tienes una cuenta?{' '}
           <Link to="/register" className="text-blue-500 hover:text-blue-600">
-            Sign up
+            Regístrate
           </Link>
         </p>
       </div>

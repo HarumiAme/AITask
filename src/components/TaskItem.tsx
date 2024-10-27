@@ -173,7 +173,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const ActionButtons = () => (
-    <div className="flex flex-wrap items-center justify-end gap-1 mt-3 pt-3 border-t border-white/10 md:mt-0 md:pt-0 md:border-0">
+    <div className="flex flex-wrap items-center justify-end gap-1 mt-3 pt-3 border-t border-white/10 md:mt-0 md:pt-0 md:border-0 md:flex-nowrap md:flex-shrink-0">
       {!shouldHideActions && (
         <>
           {!isFirst && (
@@ -276,8 +276,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
             </button>
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-            <div className="flex items-start gap-3">
+          <div className="flex flex-col md:flex-row md:items-start gap-3">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
               <button
                 onClick={() => onToggleCompletion(task.id, parentId)}
                 className={`flex-shrink-0 mt-0.5 p-1.5 rounded-lg transition-colors ${
@@ -298,7 +298,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 <span
                   className={`${
                     isMainTask ? 'text-white font-medium' : 'text-slate-300'
-                  } ${task.completed ? 'line-through opacity-75' : ''}`}
+                  } ${task.completed ? 'line-through opacity-75' : ''} break-words`}
                 >
                   {task.content}
                 </span>

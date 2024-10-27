@@ -1,5 +1,6 @@
 # Gestor de lista de tareas con asistente de IA
-![image](https://github.com/user-attachments/assets/1dae45cf-133e-4ae2-859f-be8473379ad4)
+![image](https://github.com/user-attachments/assets/b951f9cd-a227-47d5-affa-2dda18ef2b2f)
+
 
 
 
@@ -12,10 +13,10 @@ git clone https://github.com/HarumiAme/AITask.git
 ```
 npm install
 ```
-### Configurar puerto 5001 en koboldCPP (Para usar funciones de IA)
-![image](https://github.com/user-attachments/assets/26e96cc0-ca3a-4ef5-a8f5-5d6604e19b32)
-
-Nota: No olvides arrancar y esperar a que se monte el gguf en tu memoria VRAM/RAM
+### Agregar tu clave de API de openAI (en la raíz del proyecto)
+```
+echo "OPENAI_API_KEY=[Tu clave de API]" > .env
+```
 ### Ejecutar
 ```
 npm run dev

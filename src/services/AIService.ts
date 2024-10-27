@@ -1,15 +1,39 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api'; // Make sure this matches the endpoint in index.js
+const API_URL = 'http://localhost:3000/api';
 
 export const AIService = {
-  generateTask: async (prompt) => { // Remove TypeScript type if not using TypeScript
+  generateMainTask: async (prompt: string): Promise<string> => {
     try {
-      const response = await axios.post(`${API_URL}/generar-tarea`, { prompt }); // Updated endpoint
-      return response.data.tarea; // Updated field name
+      const response = await axios.post(`${API_URL}/generate-main-task`, { prompt });
+      return response.data.tarea;
     } catch (error) {
-      console.error('Error generating task:', error.message || error);
-      return 'An error occurred. Please try again.';
+      console.error('Error generating main task:', error.message || error);
+      return 'Error generating task. Please try again.';
     }
   },
+
+  generateFirstSubtask: async (mainTask: string): Promise<string> => {
+    try {
+      const response = await axios.post(`${API_URL}/generate-first-subtask`, { mainTask });
+      return response.data.tarea;
+    } catch (error) {
+      console.error('Error generating first subtask:', error.message || error);
+      return 'Error generating subtask. Please try again.';
+    }
+  },
+
+  generateSubtask: async (mainTask: string, parentSubtask: string, existingSubtasks: string[]): Promise<string> => {
+    try {
+      const response = await axios.post(`${API_URL}/generate-subtask`, {
+        mainTask,
+        parentSubtask,
+        existingSubtasks
+      });
+      return response.data.tarea;
+    } catch (error) {
+      console.error('Error generating subtask:', error.message || error);
+      return 'Error generating subtask. Please try again.';
+    }
+  }
 };

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PlusCircle, Sparkles } from 'lucide-react';
+import { AIService } from '../services/AIService';
 
 interface TaskInputProps {
   onAddTask: (content: string) => void;
-  onGenerateTask: (prompt: string) => Promise<string>;
 }
 
-const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onGenerateTask }) => {
+const TaskInput: React.FC<TaskInputProps> = ({ onAddTask }) => {
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -30,7 +30,7 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onGenerateTask }) => {
     if (input.trim()) {
       setIsGenerating(true);
       try {
-        const generatedTask = await onGenerateTask(input.trim());
+        const generatedTask = await AIService.generateMainTask(input.trim());
         setInput(generatedTask);
       } catch (error) {
         console.error('Error generating task:', error);

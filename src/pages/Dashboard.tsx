@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import TaskList from '../components/TaskList';
 import TaskInput from '../components/TaskInput';
 import { Task } from '../types';
-import { AIService } from '../services/AIService';
 import { BrainCircuit, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,7 +14,9 @@ const Dashboard: React.FC = () => {
 
   const getNextGradientIndex = () => {
     const gradients = [0, 1, 2, 3, 4];
-    const availableGradients = gradients.filter(index => index !== lastGradientIndex);
+    const availableGradients = gradients.filter(
+      (index) => index !== lastGradientIndex
+    );
     const randomIndex = Math.floor(Math.random() * availableGradients.length);
     const nextGradient = availableGradients[randomIndex];
     setLastGradientIndex(nextGradient);
@@ -96,19 +97,30 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const addSubtask = (parentId: number, content: string) => {
+  const addSubtask = (parentId: number, content: string, insertAfterId?: number) => {
     const newSubtask: Task = {
       id: Date.now(),
       content,
       subtasks: [],
       completed: false,
     };
+
     setTasks(
-      tasks.map((task) =>
-        task.id === parentId
-          ? { ...task, subtasks: [...task.subtasks, newSubtask] }
-          : task
-      )
+      tasks.map((task) => {
+        if (task.id === parentId) {
+          if (insertAfterId) {
+            // Insert after specific subtask
+            const insertIndex = task.subtasks.findIndex(st => st.id === insertAfterId);
+            const newSubtasks = [...task.subtasks];
+            newSubtasks.splice(insertIndex + 1, 0, newSubtask);
+            return { ...task, subtasks: newSubtasks };
+          } else {
+            // Add to beginning of subtasks list
+            return { ...task, subtasks: [newSubtask, ...task.subtasks] };
+          }
+        }
+        return task;
+      })
     );
   };
 
@@ -143,24 +155,13 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const generateTaskWithAI = async (prompt: string): Promise<string> => {
-    return await AIService.generateTask(prompt);
-  };
-
-  const generateSubtaskWithAI = async (
-    parentId: number,
-    context: string
-  ): Promise<string> => {
-    return await AIService.generateTask(context);
-  };
-
-  const activeTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
+  const activeTasks = tasks.filter((task) => !task.completed);
+  const completedTasks = tasks.filter((task) => task.completed);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-700 via-slate-900 to-purple-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-20"></div>
-      
+
       <nav className="bg-white/5 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -170,7 +171,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="hidden custom:inline text-slate-300/90">
-               ¡Hola,  {user?.name}!
+                ¡Hola, {user?.name}!
               </span>
               <button
                 onClick={logout}
@@ -186,7 +187,7 @@ const Dashboard: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-4 py-12 relative">
         <div className="mb-12">
-          <TaskInput onAddTask={addTask} onGenerateTask={generateTaskWithAI} />
+          <TaskInput onAddTask={addTask} />
         </div>
 
         <div className="space-y-8">
@@ -205,7 +206,6 @@ const Dashboard: React.FC = () => {
                   onEditTask={editTask}
                   onAddSubtask={addSubtask}
                   onReorderTasks={reorderTasks}
-                  onGenerateSubtask={generateSubtaskWithAI}
                   onToggleCompletion={toggleTaskCompletion}
                 />
               )}
@@ -218,8 +218,14 @@ const Dashboard: React.FC = () => {
                 onClick={() => setShowCompleted(!showCompleted)}
                 className="w-full p-4 flex items-center justify-between text-slate-300 hover:text-white transition-colors"
               >
-                <span className="text-lg font-medium">Tareas Completadas ({completedTasks.length})</span>
-                {showCompleted ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                <span className="text-lg font-medium">
+                  Tareas Completadas ({completedTasks.length})
+                </span>
+                {showCompleted ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
               </button>
               {showCompleted && (
                 <div className="p-6 pt-0">
@@ -229,7 +235,6 @@ const Dashboard: React.FC = () => {
                     onEditTask={editTask}
                     onAddSubtask={addSubtask}
                     onReorderTasks={reorderTasks}
-                    onGenerateSubtask={generateSubtaskWithAI}
                     onToggleCompletion={toggleTaskCompletion}
                   />
                 </div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Task } from '../types';
+import { AIService } from '../services/AIService';
 import {
   Edit2,
   Trash2,
@@ -23,13 +24,12 @@ interface TaskItemProps {
   parentCompleted?: boolean;
   onDelete: (id: number, parentId?: number) => void;
   onEdit: (id: number, content: string, parentId?: number) => void;
-  onAddSubtask: (parentId: number, content: string) => void;
+  onAddSubtask: (parentId: number, content: string, insertAfter?: number) => void;
   onReorderTasks: (
     taskId: number,
     direction: 'up' | 'down',
     parentId?: number
   ) => void;
-  onGenerateSubtask: (parentId: number, context: string) => Promise<string>;
   onToggleCompletion: (id: number, parentId?: number) => void;
 }
 
@@ -44,7 +44,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
   onEdit,
   onAddSubtask,
   onReorderTasks,
-  onGenerateSubtask,
   onToggleCompletion,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -65,16 +64,25 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
   useEffect(() => {
     if (isEditing && editTextareaRef.current) {
-      editTextareaRef.current.style.height = 'auto';
-      editTextareaRef.current.style.height = `${editTextareaRef.current.scrollHeight}px`;
+      const textarea = editTextareaRef.current;
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+      // Set cursor at the end
+      textarea.selectionStart = textarea.value.length;
+      textarea.selectionEnd = textarea.value.length;
+      textarea.focus();
     }
   }, [isEditing, editedContent]);
 
   useEffect(() => {
     if (isAddingSubtask && newSubtaskTextareaRef.current) {
-      newSubtaskTextareaRef.current.focus();
-      newSubtaskTextareaRef.current.style.height = 'auto';
-      newSubtaskTextareaRef.current.style.height = `${newSubtaskTextareaRef.current.scrollHeight}px`;
+      const textarea = newSubtaskTextareaRef.current;
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+      // Set cursor at the end
+      textarea.selectionStart = textarea.value.length;
+      textarea.selectionEnd = textarea.value.length;
+      textarea.focus();
     }
   }, [isAddingSubtask, newSubtaskContent]);
 
@@ -96,7 +104,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const handleSubmitSubtask = (e: React.FormEvent) => {
     e.preventDefault();
     if (newSubtaskContent.trim()) {
-      onAddSubtask(isMainTask ? task.id : parentId!, newSubtaskContent.trim());
+      if (isMainTask) {
+        // For main tasks, add subtask at the beginning of the list
+        onAddSubtask(task.id, newSubtaskContent.trim());
+      } else {
+        // For subtasks, add sibling after the current task
+        onAddSubtask(parentId!, newSubtaskContent.trim(), task.id);
+      }
       setNewSubtaskContent('');
       setIsAddingSubtask(false);
       setShowSubtasks(true);
@@ -105,14 +119,31 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
   const handleGenerateSubtask = async () => {
     setIsGeneratingSubtask(true);
-    const context = `Main task: ${
-      isMainTask ? task.content : `Parent task: ${task.content}`
-    }\nSubtasks: ${task.subtasks.map((st) => st.content).join(', ')}`;
     try {
-      const generatedSubtask = await onGenerateSubtask(
-        isMainTask ? task.id : parentId!,
-        context
-      );
+      let generatedSubtask;
+      if (isMainTask) {
+        if (task.subtasks.length === 0) {
+          // Generate first subtask for a main task
+          generatedSubtask = await AIService.generateFirstSubtask(task.content);
+        } else {
+          // Generate a subtask considering existing subtasks
+          const existingSubtasks = task.subtasks.map(st => st.content);
+          generatedSubtask = await AIService.generateSubtask(
+            task.content,
+            task.content,
+            existingSubtasks
+          );
+        }
+      } else {
+        // Generate sibling subtask
+        const parentTask = task.content;
+        const siblingSubtasks = task.subtasks.map(st => st.content);
+        generatedSubtask = await AIService.generateSubtask(
+          parentTask,
+          task.content,
+          siblingSubtasks
+        );
+      }
       setNewSubtaskContent(generatedSubtask.trim());
       setIsAddingSubtask(true);
     } catch (error) {
@@ -166,7 +197,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
               className="flex-grow p-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none overflow-hidden text-white"
               rows={1}
               style={{ minHeight: '40px' }}
-              autoFocus
             />
             <button
               onClick={handleEdit}
@@ -335,7 +365,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
                     onEdit={onEdit}
                     onAddSubtask={onAddSubtask}
                     onReorderTasks={onReorderTasks}
-                    onGenerateSubtask={onGenerateSubtask}
                     onToggleCompletion={onToggleCompletion}
                   />
                 </li>
@@ -376,7 +405,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
                         onEdit={onEdit}
                         onAddSubtask={onAddSubtask}
                         onReorderTasks={onReorderTasks}
-                        onGenerateSubtask={onGenerateSubtask}
                         onToggleCompletion={onToggleCompletion}
                       />
                     </li>

@@ -2,7 +2,8 @@
 ![image](https://github.com/user-attachments/assets/b951f9cd-a227-47d5-affa-2dda18ef2b2f)
 #### [Versión en linea](https://ai-task-seven.vercel.app)
 
-
+## QR Code
+![qr-code_Small](https://github.com/user-attachments/assets/1ee226ab-c0c7-43c4-8513-22b64730959a)
 
 ## Instrucciones 
 ### Clonar proyecto

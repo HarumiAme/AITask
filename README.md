@@ -5,6 +5,8 @@
 ## QR Code
 ![qr-code_Small](https://github.com/user-attachments/assets/1ee226ab-c0c7-43c4-8513-22b64730959a)
 
+### [Reporte y presentación de proyecto](./Docs)
+
 ## Instrucciones 
 ### Clonar proyecto
 ```bash

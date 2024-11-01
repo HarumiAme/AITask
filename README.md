@@ -17,7 +17,7 @@ cd AITask
 ```bash
 npm install
 ```
-### Agregar tus clave de API y otros daots de openAI y firebase (en la raíz del proyecto)
+### Agregar tus clave de API y otros datos de openAI y firebase (en la raíz del proyecto)
 ```bash
 echo "OPENAI_API_KEY=[API]" > .env
 echo "VITE_FIREBASE_API_KEY=[API]" >> .env

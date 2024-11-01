@@ -23,30 +23,33 @@ export const TaskService = {
       batch.delete(doc.ref);
     });
 
-    // Add new tasks
-    const saveTask = (task: Task, parentId: string | null = null) => {
+    // Add new tasks with order
+    const saveTask = (task: Task, parentId: string | null = null, order: number) => {
       const taskRef = doc(tasksRef);
       batch.set(taskRef, {
         id: task.id,
         content: task.content,
         completed: task.completed || false,
         parentId,
-        gradientIndex: parentId ? 0 : (task.gradientIndex || 0), // Default to 0 for subtasks
+        order,
+        gradientIndex: parentId ? 0 : (task.gradientIndex || 0),
         createdAt: Date.now(),
       });
 
-      // Recursively save subtasks
-      task.subtasks?.forEach((subtask) => saveTask(subtask, task.id.toString()));
+      // Save subtasks with their own order
+      task.subtasks?.forEach((subtask, index) => {
+        saveTask(subtask, task.id.toString(), index);
+      });
     };
 
-    tasks.forEach((task) => saveTask(task));
+    tasks.forEach((task, index) => saveTask(task, null, index));
     await batch.commit();
   },
 
   async loadTasks(userId: string): Promise<Task[]> {
     const tasksRef = collection(db, 'users', userId, 'tasks');
     const snapshot = await getDocs(
-      query(tasksRef, orderBy('createdAt', 'asc'))
+      query(tasksRef, orderBy('order', 'asc'))
     );
     
     const tasks = new Map<string, Task>();
@@ -72,12 +75,22 @@ export const TaskService = {
       }
     });
     
-    // Second pass: Assign subtasks to their parents
+    // Second pass: Assign sorted subtasks to their parents
     tasks.forEach((task) => {
       const taskSubtasks = subtasksByParent.get(task.id.toString()) || [];
-      task.subtasks = taskSubtasks;
+      // Sort subtasks by their order
+      task.subtasks = taskSubtasks.sort((a, b) => {
+        const aDoc = snapshot.docs.find(doc => doc.data().id === a.id.toString());
+        const bDoc = snapshot.docs.find(doc => doc.data().id === b.id.toString());
+        return (aDoc?.data().order || 0) - (bDoc?.data().order || 0);
+      });
     });
     
-    return Array.from(tasks.values());
+    // Convert to array and sort by order
+    return Array.from(tasks.values()).sort((a, b) => {
+      const aDoc = snapshot.docs.find(doc => doc.data().id === a.id.toString());
+      const bDoc = snapshot.docs.find(doc => doc.data().id === b.id.toString());
+      return (aDoc?.data().order || 0) - (bDoc?.data().order || 0);
+    });
   },
 };

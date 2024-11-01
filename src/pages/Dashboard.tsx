@@ -4,13 +4,46 @@ import TaskList from '../components/TaskList';
 import TaskInput from '../components/TaskInput';
 import { Task } from '../types';
 import { BrainCircuit, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { TaskService } from '../services/TaskService';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [lastGradientIndex, setLastGradientIndex] = useState<number>(-1);
   const [showCompleted, setShowCompleted] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      if (user?.id) {
+        try {
+          const loadedTasks = await TaskService.loadTasks(user.id);
+          setTasks(loadedTasks);
+        } catch (error) {
+          console.error('Error loading tasks:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    loadTasks();
+  }, [user?.id]);
+
+  useEffect(() => {
+    const saveTasks = async () => {
+      if (user?.id) {
+        try {
+          await TaskService.saveTasks(user.id, tasks);
+        } catch (error) {
+          console.error('Error saving tasks:', error);
+        }
+      }
+    };
+    if (!loading) {
+      saveTasks();
+    }
+  }, [tasks, user?.id, loading]);
 
   const getNextGradientIndex = () => {
     const gradients = [0, 1, 2, 3, 4];
@@ -109,13 +142,11 @@ const Dashboard: React.FC = () => {
       tasks.map((task) => {
         if (task.id === parentId) {
           if (insertAfterId) {
-            // Insert after specific subtask
             const insertIndex = task.subtasks.findIndex(st => st.id === insertAfterId);
             const newSubtasks = [...task.subtasks];
             newSubtasks.splice(insertIndex + 1, 0, newSubtask);
             return { ...task, subtasks: newSubtasks };
           } else {
-            // Add to beginning of subtasks list
             return { ...task, subtasks: [newSubtask, ...task.subtasks] };
           }
         }
@@ -157,6 +188,14 @@ const Dashboard: React.FC = () => {
 
   const activeTasks = tasks.filter((task) => !task.completed);
   const completedTasks = tasks.filter((task) => task.completed);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-700 via-slate-900 to-purple-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-700 via-slate-900 to-purple-900 relative overflow-hidden">

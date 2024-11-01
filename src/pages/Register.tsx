@@ -11,8 +11,28 @@ const Register: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
 
+  const validatePassword = (password: string) => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const isLongEnough = password.length >= 8;
+
+    if (!isLongEnough) return 'La contraseña debe tener al menos 8 caracteres';
+    if (!hasUpperCase) return 'La contraseña debe contener al menos una mayúscula';
+    if (!hasNumber) return 'La contraseña debe contener al menos un número';
+    if (!hasSpecialChar) return 'La contraseña debe contener al menos un carácter especial';
+    return '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     try {
       setError('');
       setLoading(true);
@@ -21,8 +41,6 @@ const Register: React.FC = () => {
       setError(
         error.message.includes('auth/email-already-in-use')
           ? 'Este email ya está registrado'
-          : error.message.includes('auth/weak-password')
-          ? 'La contraseña debe tener al menos 6 caracteres'
           : 'Error al crear la cuenta'
       );
     } finally {
@@ -97,12 +115,28 @@ const Register: React.FC = () => {
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError('');
+              }}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={loading}
-              minLength={6}
             />
+            <ul className="mt-2 text-xs text-slate-600 space-y-1">
+              <li className={`flex items-center gap-1 ${password.length >= 8 ? 'text-green-600' : ''}`}>
+                • Mínimo 8 caracteres
+              </li>
+              <li className={`flex items-center gap-1 ${/[A-Z]/.test(password) ? 'text-green-600' : ''}`}>
+                • Al menos una mayúscula
+              </li>
+              <li className={`flex items-center gap-1 ${/[0-9]/.test(password) ? 'text-green-600' : ''}`}>
+                • Al menos un número
+              </li>
+              <li className={`flex items-center gap-1 ${/[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'text-green-600' : ''}`}>
+                • Al menos un carácter especial (!@#$%^&*(),.?":{}|&lt;&gt;)
+              </li>
+            </ul>
           </div>
 
           <button

@@ -6,12 +6,14 @@ interface TaskTagSelectorProps {
   tags: Tag[];
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
+  onTagClick?: (tagId: string) => void;
 }
 
 const TaskTagSelector: React.FC<TaskTagSelectorProps> = ({
   tags,
   selectedTags,
   onTagsChange,
+  onTagClick,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -40,11 +42,18 @@ const TaskTagSelector: React.FC<TaskTagSelectorProps> = ({
     onTagsChange(newSelectedTags);
   };
 
+  const handleTagClick = (tagId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (onTagClick) {
+      onTagClick(tagId);
+    }
+  };
+
   const selectedTagObjects = tags.filter(tag => selectedTags.includes(tag.id));
 
   return (
     <div className="relative" ref={containerRef}>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center -ml-1">
         <button
           ref={buttonRef}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -54,15 +63,16 @@ const TaskTagSelector: React.FC<TaskTagSelectorProps> = ({
           <Tags size={16} className="text-slate-400" />
         </button>
         {selectedTagObjects.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 ml-1">
             {selectedTagObjects.map((tag) => (
-              <span
+              <button
                 key={tag.id}
-                className="px-2 py-0.5 rounded-full text-xs font-medium bg-opacity-100 text-white"
+                onClick={(e) => handleTagClick(tag.id, e)}
+                className="px-2 py-0.5 rounded-full text-xs font-medium bg-opacity-100 text-white hover:brightness-110 transition-all"
                 style={{ backgroundColor: tag.color }}
               >
                 {tag.name}
-              </span>
+              </button>
             ))}
           </div>
         )}

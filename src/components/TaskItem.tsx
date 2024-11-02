@@ -35,6 +35,7 @@ interface TaskItemProps {
   ) => void;
   onToggleCompletion: (id: number, parentId?: number) => void;
   onUpdateTags: (id: number, tags: string[]) => void;
+  onTaskTagClick?: (tagId: string) => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -52,6 +53,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   onReorderTasks,
   onToggleCompletion,
   onUpdateTags,
+  onTaskTagClick,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(task.content);
@@ -338,6 +340,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                     tags={tags}
                     selectedTags={task.tags || []}
                     onTagsChange={(newTags) => onUpdateTags(task.id, newTags)}
+                    onTagClick={onTaskTagClick}
                   />
                 )}
               </div>
@@ -402,6 +405,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                     onReorderTasks={onReorderTasks}
                     onToggleCompletion={onToggleCompletion}
                     onUpdateTags={onUpdateTags}
+                    onTaskTagClick={onTaskTagClick}
                   />
                 </li>
               ))}
@@ -445,6 +449,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                         onReorderTasks={onReorderTasks}
                         onToggleCompletion={onToggleCompletion}
                         onUpdateTags={onUpdateTags}
+                        onTaskTagClick={onTaskTagClick}
                       />
                     </li>
                   ))}

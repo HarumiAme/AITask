@@ -55,6 +55,10 @@ const TagSelector: React.FC<TagSelectorProps> = ({
     onTagsChange(newSelectedTags);
   };
 
+  const clearAllTags = () => {
+    onTagsChange([]);
+  };
+
   const toggleTagForDeletion = (tagId: string) => {
     const newTagsToDelete = new Set(tagsToDelete);
     if (newTagsToDelete.has(tagId)) {
@@ -110,6 +114,15 @@ const TagSelector: React.FC<TagSelectorProps> = ({
             <span>{tag.name}</span>
           </button>
         ))}
+        {selectedTags.length > 0 && (
+          <button
+            onClick={clearAllTags}
+            className="px-3 py-1 rounded-full text-sm font-medium bg-white/10 text-white/70 hover:bg-white/20 transition-all duration-200 flex items-center gap-1"
+            title="Limpiar filtros"
+          >
+            <X size={14} />
+          </button>
+        )}
         <button
           onClick={() => setIsCreating(true)}
           className="px-3 py-1 rounded-full text-sm font-medium bg-white/10 text-white/70 hover:bg-white/20 transition-all duration-200 flex items-center gap-1"

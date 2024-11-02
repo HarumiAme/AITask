@@ -234,6 +234,12 @@ const Dashboard: React.FC = () => {
     setTags(tags.filter(tag => !tagIds.includes(tag.id)));
   };
 
+  const handleTaskTagClick = (tagId: string) => {
+    if (!selectedTagFilter.includes(tagId)) {
+      setSelectedTagFilter([...selectedTagFilter, tagId]);
+    }
+  };
+
   const filteredTasks = tasks.filter(task => 
     selectedTagFilter.length === 0 || 
     task.tags?.some(tagId => selectedTagFilter.includes(tagId))
@@ -309,6 +315,7 @@ const Dashboard: React.FC = () => {
                     onReorderTasks={reorderTasks}
                     onToggleCompletion={toggleTaskCompletion}
                     onUpdateTags={updateTaskTags}
+                    onTaskTagClick={handleTaskTagClick}
                   />
                 )}
               </div>
@@ -340,6 +347,7 @@ const Dashboard: React.FC = () => {
                       onReorderTasks={reorderTasks}
                       onToggleCompletion={toggleTaskCompletion}
                       onUpdateTags={updateTaskTags}
+                      onTaskTagClick={handleTaskTagClick}
                     />
                   </div>
                 )}

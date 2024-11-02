@@ -130,7 +130,11 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const addSubtask = (parentId: number, content: string, insertAfterId?: number) => {
+  const addSubtask = (
+    parentId: number,
+    content: string,
+    insertAfterId?: number
+  ) => {
     const newSubtask: Task = {
       id: Date.now(),
       content,
@@ -142,7 +146,9 @@ const Dashboard: React.FC = () => {
       tasks.map((task) => {
         if (task.id === parentId) {
           if (insertAfterId) {
-            const insertIndex = task.subtasks.findIndex(st => st.id === insertAfterId);
+            const insertIndex = task.subtasks.findIndex(
+              (st) => st.id === insertAfterId
+            );
             const newSubtasks = [...task.subtasks];
             newSubtasks.splice(insertIndex + 1, 0, newSubtask);
             return { ...task, subtasks: newSubtasks };
@@ -198,10 +204,11 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-700 via-slate-900 to-purple-900 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-20"></div>
+    <div className="relative min-h-screen">
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-700 via-slate-900 to-purple-900 -z-10" />
+      <div className="fixed inset-0 bg-[url('/pattern.svg')] opacity-20 -z-10" />
 
-      <nav className="bg-white/5 backdrop-blur-lg border-b border-white/10">
+      <nav className="sticky top-0 z-10 bg-white/5 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -224,7 +231,7 @@ const Dashboard: React.FC = () => {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-12 relative">
+      <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="mb-12">
           <TaskInput onAddTask={addTask} />
         </div>

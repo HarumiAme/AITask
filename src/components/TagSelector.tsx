@@ -24,6 +24,8 @@ const TagSelector: React.FC<TagSelectorProps> = ({
   const [newTagName, setNewTagName] = useState('');
   const [selectedColor, setSelectedColor] = useState('#3B82F6');
 
+  const MAX_TAG_LENGTH = 30;
+
   const colors = [
     '#3B82F6', // blue
     '#10B981', // green
@@ -36,7 +38,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
   ];
 
   const handleCreateTag = () => {
-    if (newTagName.trim()) {
+    if (newTagName.trim() && newTagName.length <= MAX_TAG_LENGTH) {
       onCreateTag({
         id: Date.now().toString(),
         name: newTagName.trim(),
@@ -45,6 +47,13 @@ const TagSelector: React.FC<TagSelectorProps> = ({
       setNewTagName('');
       setIsCreating(false);
       setSelectedColor('#3B82F6');
+    }
+  };
+
+  const handleTagNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length <= MAX_TAG_LENGTH) {
+      setNewTagName(value);
     }
   };
 
@@ -71,17 +80,10 @@ const TagSelector: React.FC<TagSelectorProps> = ({
 
   const handleDeleteTags = () => {
     if (onDeleteTag && tagsToDelete.size > 0) {
-      // Convert Set to Array for deletion
       const tagsToDeleteArray = Array.from(tagsToDelete);
-      
-      // Remove selected tags from filters
       const newSelectedTags = selectedTags.filter(id => !tagsToDelete.has(id));
       onTagsChange(newSelectedTags);
-
-      // Delete all selected tags at once
       onDeleteTag(tagsToDeleteArray);
-
-      // Reset state
       setTagsToDelete(new Set());
       setShowDeleteConfirmation(false);
       setIsDeletingMode(false);
@@ -233,13 +235,22 @@ const TagSelector: React.FC<TagSelectorProps> = ({
       {isCreating && (
         <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 space-y-4">
           <div className="space-y-2">
-            <input
-              type="text"
-              value={newTagName}
-              onChange={(e) => setNewTagName(e.target.value)}
-              placeholder="Nombre del tag..."
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 text-white placeholder-white/50"
-            />
+            <div className="space-y-1">
+              <input
+                type="text"
+                value={newTagName}
+                onChange={handleTagNameChange}
+                placeholder="Nombre del tag..."
+                maxLength={MAX_TAG_LENGTH}
+                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 text-white placeholder-white/50"
+              />
+              <div className="flex justify-between text-xs text-white/50">
+                <span>{newTagName.length}/{MAX_TAG_LENGTH} caracteres</span>
+                {newTagName.length === MAX_TAG_LENGTH && (
+                  <span className="text-yellow-400">Límite alcanzado</span>
+                )}
+              </div>
+            </div>
             <div className="flex flex-wrap gap-2">
               {colors.map((color) => (
                 <button

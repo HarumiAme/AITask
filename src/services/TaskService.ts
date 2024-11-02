@@ -23,74 +23,91 @@ export const TaskService = {
       batch.delete(doc.ref);
     });
 
-    // Add new tasks with order
-    const saveTask = (task: Task, parentId: string | null = null, order: number) => {
-      const taskRef = doc(tasksRef);
-      batch.set(taskRef, {
-        id: task.id,
+    // Serialize task data for Firestore
+    const serializeTask = (task: Task, parentId: string | null = null, order: number) => {
+      const taskData = {
+        id: task.id.toString(), // Convert to string for Firestore
         content: task.content,
         completed: task.completed || false,
         parentId,
         order,
-        gradientIndex: parentId ? 0 : (task.gradientIndex || 0),
+        gradientIndex: task.gradientIndex || 0,
+        tags: task.tags || [],
         createdAt: Date.now(),
-      });
+      };
 
-      // Save subtasks with their own order
+      const taskRef = doc(tasksRef);
+      batch.set(taskRef, taskData);
+
+      // Save subtasks recursively
       task.subtasks?.forEach((subtask, index) => {
-        saveTask(subtask, task.id.toString(), index);
+        serializeTask(subtask, task.id.toString(), index);
       });
     };
 
-    tasks.forEach((task, index) => saveTask(task, null, index));
-    await batch.commit();
+    // Save all tasks
+    tasks.forEach((task, index) => {
+      serializeTask(task, null, index);
+    });
+
+    try {
+      await batch.commit();
+    } catch (error) {
+      console.error('Error saving tasks:', error);
+      throw error;
+    }
   },
 
   async loadTasks(userId: string): Promise<Task[]> {
-    const tasksRef = collection(db, 'users', userId, 'tasks');
-    const snapshot = await getDocs(
-      query(tasksRef, orderBy('order', 'asc'))
-    );
-    
-    const tasks = new Map<string, Task>();
-    const subtasksByParent = new Map<string, Task[]>();
-    
-    // First pass: Create all task objects and organize by parent
-    snapshot.docs.forEach(doc => {
-      const data = doc.data();
-      const task: Task = {
-        id: parseInt(data.id),
-        content: data.content,
-        completed: data.completed || false,
-        gradientIndex: data.gradientIndex,
-        subtasks: [],
-      };
+    try {
+      const tasksRef = collection(db, 'users', userId, 'tasks');
+      const snapshot = await getDocs(
+        query(tasksRef, orderBy('order', 'asc'))
+      );
       
-      if (data.parentId === null) {
-        tasks.set(data.id, task);
-      } else {
-        const parentSubtasks = subtasksByParent.get(data.parentId) || [];
-        parentSubtasks.push(task);
-        subtasksByParent.set(data.parentId, parentSubtasks);
-      }
-    });
-    
-    // Second pass: Assign sorted subtasks to their parents
-    tasks.forEach((task) => {
-      const taskSubtasks = subtasksByParent.get(task.id.toString()) || [];
-      // Sort subtasks by their order
-      task.subtasks = taskSubtasks.sort((a, b) => {
+      const tasks = new Map<string, Task>();
+      const subtasksByParent = new Map<string, Task[]>();
+      
+      // First pass: Create all task objects
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const task: Task = {
+          id: parseInt(data.id),
+          content: data.content,
+          completed: data.completed || false,
+          gradientIndex: data.gradientIndex || 0,
+          tags: data.tags || [],
+          subtasks: [],
+        };
+        
+        if (data.parentId === null) {
+          tasks.set(data.id, task);
+        } else {
+          const parentSubtasks = subtasksByParent.get(data.parentId) || [];
+          parentSubtasks.push(task);
+          subtasksByParent.set(data.parentId, parentSubtasks);
+        }
+      });
+      
+      // Second pass: Assign subtasks to their parents
+      tasks.forEach((task) => {
+        const taskSubtasks = subtasksByParent.get(task.id.toString()) || [];
+        task.subtasks = taskSubtasks.sort((a, b) => {
+          const aDoc = snapshot.docs.find(doc => doc.data().id === a.id.toString());
+          const bDoc = snapshot.docs.find(doc => doc.data().id === b.id.toString());
+          return (aDoc?.data().order || 0) - (bDoc?.data().order || 0);
+        });
+      });
+      
+      // Convert to array and sort by order
+      return Array.from(tasks.values()).sort((a, b) => {
         const aDoc = snapshot.docs.find(doc => doc.data().id === a.id.toString());
         const bDoc = snapshot.docs.find(doc => doc.data().id === b.id.toString());
         return (aDoc?.data().order || 0) - (bDoc?.data().order || 0);
       });
-    });
-    
-    // Convert to array and sort by order
-    return Array.from(tasks.values()).sort((a, b) => {
-      const aDoc = snapshot.docs.find(doc => doc.data().id === a.id.toString());
-      const bDoc = snapshot.docs.find(doc => doc.data().id === b.id.toString());
-      return (aDoc?.data().order || 0) - (bDoc?.data().order || 0);
-    });
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      throw error;
+    }
   },
 };

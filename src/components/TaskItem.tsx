@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Task } from '../types';
+import { Task, Tag } from '../types';
 import { AIService } from '../services/AIService';
+import TaskTagSelector from './TaskTagSelector';
 import {
   Edit2,
   Trash2,
@@ -23,6 +24,7 @@ interface TaskItemProps {
   parentId?: number;
   parentTask?: Task;
   parentCompleted?: boolean;
+  tags: Tag[];
   onDelete: (id: number, parentId?: number) => void;
   onEdit: (id: number, content: string, parentId?: number) => void;
   onAddSubtask: (parentId: number, content: string, insertAfter?: number) => void;
@@ -32,6 +34,7 @@ interface TaskItemProps {
     parentId?: number
   ) => void;
   onToggleCompletion: (id: number, parentId?: number) => void;
+  onUpdateTags: (id: number, tags: string[]) => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -42,19 +45,21 @@ const TaskItem: React.FC<TaskItemProps> = ({
   parentId,
   parentTask,
   parentCompleted,
+  tags,
   onDelete,
   onEdit,
   onAddSubtask,
   onReorderTasks,
   onToggleCompletion,
+  onUpdateTags,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(task.content);
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [newSubtaskContent, setNewSubtaskContent] = useState('');
   const [isGeneratingSubtask, setIsGeneratingSubtask] = useState(false);
-  const [showCompletedSubtasks, setShowCompletedSubtasks] = useState(true);
-  const [showSubtasks, setShowSubtasks] = useState(true);
+  const [showCompletedSubtasks, setShowCompletedSubtasks] = useState(false);
+  const [showSubtasks, setShowSubtasks] = useState(false);
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
   const newSubtaskTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -63,6 +68,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const activeSubtasks = task.subtasks.filter(subtask => !subtask.completed);
   const completedSubtasks = task.subtasks.filter(subtask => subtask.completed);
   const hasSubtasks = task.subtasks.length > 0;
+  const incompleteSubtasksCount = activeSubtasks.length;
 
   useEffect(() => {
     if (isEditing && editTextareaRef.current) {
@@ -106,8 +112,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
     if (newSubtaskContent.trim()) {
       if (isMainTask) {
         onAddSubtask(task.id, newSubtaskContent.trim());
-      } else {
-        onAddSubtask(parentId!, newSubtaskContent.trim(), task.id);
+      } else if (parentId) {
+        onAddSubtask(parentId, newSubtaskContent.trim(), task.id);
       }
       setNewSubtaskContent('');
       setIsAddingSubtask(false);
@@ -138,13 +144,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
         }
       } else if (parentTask) {
         const currentTaskIndex = parentTask.subtasks.findIndex(st => st.id === task.id);
-        const subtasksUpToCurrent = getSubtasksUpToIndex(parentTask.subtasks, currentTaskIndex);
-        
-        generatedSubtask = await AIService.generateSubtask(
-          parentTask.content,
-          task.content,
-          subtasksUpToCurrent
-        );
+        if (currentTaskIndex !== -1) {
+          const subtasksUpToCurrent = getSubtasksUpToIndex(parentTask.subtasks, currentTaskIndex);
+          generatedSubtask = await AIService.generateSubtask(
+            parentTask.content,
+            task.content,
+            subtasksUpToCurrent
+          );
+        }
       }
 
       if (generatedSubtask) {
@@ -294,28 +301,44 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   className={task.completed ? 'fill-green-400' : ''}
                 />
               </button>
-              <div className="flex items-start gap-2 min-w-0 flex-1 pt-1">
-                <span
-                  className={`${
-                    isMainTask ? 'text-white font-medium' : 'text-slate-300'
-                  } ${task.completed ? 'line-through opacity-75' : ''} break-words`}
-                >
-                  {task.content}
-                </span>
-                {hasSubtasks && (
-                  <button
-                    onClick={() => setShowSubtasks(!showSubtasks)}
-                    className="flex-shrink-0 p-1 text-slate-400 hover:text-slate-300 transition-colors rounded-lg hover:bg-white/10"
+              <div className="flex flex-col gap-2 min-w-0 flex-1 pt-1">
+                <div className="flex items-start gap-2">
+                  <span
+                    className={`${
+                      isMainTask ? 'text-white font-medium' : 'text-slate-300'
+                    } ${task.completed ? 'line-through opacity-75' : ''} break-words`}
                   >
-                    {showSubtasks ? (
-                      <ChevronUp size={16} className="opacity-75" />
-                    ) : (
-                      <ChevronDown size={16} className="opacity-75" />
-                    )}
-                    <span className="sr-only">
-                      {showSubtasks ? 'Hide subtasks' : 'Show subtasks'}
-                    </span>
-                  </button>
+                    {task.content}
+                  </span>
+                  {hasSubtasks && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setShowSubtasks(!showSubtasks)}
+                        className="flex-shrink-0 p-1 text-slate-400 hover:text-slate-300 transition-colors rounded-lg hover:bg-white/10"
+                      >
+                        {showSubtasks ? (
+                          <ChevronUp size={16} className="opacity-75" />
+                        ) : (
+                          <ChevronDown size={16} className="opacity-75" />
+                        )}
+                        <span className="sr-only">
+                          {showSubtasks ? 'Hide subtasks' : 'Show subtasks'}
+                        </span>
+                      </button>
+                      {incompleteSubtasksCount > 0 && (
+                        <span className="text-sm text-slate-400">
+                          ({incompleteSubtasksCount})
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {isMainTask && !task.completed && (
+                  <TaskTagSelector
+                    tags={tags}
+                    selectedTags={task.tags || []}
+                    onTagsChange={(newTags) => onUpdateTags(task.id, newTags)}
+                  />
                 )}
               </div>
             </div>
@@ -331,7 +354,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 value={newSubtaskContent}
                 onChange={(e) => setNewSubtaskContent(e.target.value)}
                 placeholder="Agregar sub-tarea..."
-                className="flex-grow p-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none overflow-hidden text-white placeholder-slate-400"
+                className="flex-grow p-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none overflow-hidden text-white placeholder-white/50"
                 rows={1}
                 style={{ minHeight: '40px' }}
               />
@@ -371,12 +394,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
                     isLast={subtaskIndex === activeSubtasks.length - 1}
                     parentId={task.id}
                     parentTask={task}
+                    tags={tags}
                     parentCompleted={task.completed}
                     onDelete={onDelete}
                     onEdit={onEdit}
                     onAddSubtask={onAddSubtask}
                     onReorderTasks={onReorderTasks}
                     onToggleCompletion={onToggleCompletion}
+                    onUpdateTags={onUpdateTags}
                   />
                 </li>
               ))}
@@ -412,12 +437,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
                         isLast={subtaskIndex === completedSubtasks.length - 1}
                         parentId={task.id}
                         parentTask={task}
+                        tags={tags}
                         parentCompleted={task.completed}
                         onDelete={onDelete}
                         onEdit={onEdit}
                         onAddSubtask={onAddSubtask}
                         onReorderTasks={onReorderTasks}
                         onToggleCompletion={onToggleCompletion}
+                        onUpdateTags={onUpdateTags}
                       />
                     </li>
                   ))}

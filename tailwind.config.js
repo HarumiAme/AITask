@@ -5,6 +5,7 @@ export default {
     extend: {
       screens: {
         'custom': '500px', // Custom breakpoint at 600px
+        xs: '400px', // New breakpoint at 480px
       },
     },
   },

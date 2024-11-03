@@ -13,10 +13,10 @@ const Landing: React.FC = () => {
             <BrainCircuit className="w-8 h-8 text-blue-400" />
             <span className="text-xl font-bold text-white">TaskAI</span>
           </div>
-          <div className="space-x-4">
+          <div className="flex flex-col xs:flex-row items-end xs:items-center gap-2">
             <Link
               to="/login"
-              className="px-4 py-2 text-white/90 hover:text-white transition-colors"
+              className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white rounded-lg transition-all duration-200"
             >
               Iniciar sesión
             </Link>
